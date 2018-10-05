@@ -1,6 +1,7 @@
 package SaveWesteros;
 
 import java.util.ArrayList;
+import java.util.PriorityQueue;
 import java.util.Random;
 
 import Cell.Cell;
@@ -13,6 +14,7 @@ public class SaveWesteros extends SearchProblem {
 	private int positionI;
 	private int positionJ;
 	private int maxDragonGlass;
+	private int currentDragonGlass;
 	private int numWhiteWalkers;
 	
 	
@@ -28,12 +30,18 @@ public class SaveWesteros extends SearchProblem {
 		o.add("attack");
 		o.add("getDragonGlass");
 		this.setOperators(o);
-		ArrayList<String> state = new ArrayList<>();
-		state.add(this.positionI+"");
-		state.add(this.positionJ+"");
-		state.add(numWhiteWalkers+"");
-		State s = new State(state);
+		this.setInitialState(generateState(positionI, positionJ, numWhiteWalkers, currentDragonGlass));
 		setStateSpace(new ArrayList<>());
+	}
+	
+	public State generateState(int i, int j, int k, int d) {
+		ArrayList<String> state = new ArrayList<>();
+		state.add(i+"");
+		state.add(j+"");
+		state.add(k+"");
+		state.add(d+"");
+		State s = new State(state);
+		return s;
 	}
 
 	public void genGrid() {
@@ -111,39 +119,79 @@ public class SaveWesteros extends SearchProblem {
 //	}
 	
 	public void Search(Cell [][] grid, String strategy, boolean visualize) {
-		
-		switch(strategy) {
-		case "BF": BF(grid, visualize);break;
-		case "DF": DF(grid, visualize);break;
-		case "ID": ID(grid, visualize);break;
-		case "UC": UC(grid, visualize);break;
-		case "GRi":GRi(grid, visualize);break;
-		case "ASi":ASi(grid, visualize);break;
+		Node n = new Node(0, 0, null, null, null, this.getInitialState());
+		ArrayList<Node> nodes = new ArrayList<>();
+		nodes.add(n);
+		while(!nodes.isEmpty()) {
+			if(nodes.isEmpty()) {
+				return;
+			}else {
+				Node current = nodes.remove(0);
+				if(goalTest(current.getState())) {
+					return ;//return node
+				}else {
+					switch(strategy) {
+					case "BF": nodes = BF(grid, visualize, current);break;
+					case "DF": nodes = DF(grid, visualize, current);break;
+					case "ID": nodes = ID(grid, visualize, current);break;
+					case "UC": nodes = UC(grid, visualize, current);break;
+					case "GRi":nodes = GRi(grid, visualize, current);break;
+					case "ASi":nodes = ASi(grid, visualize, current);break;
+					}
+				}
+			}
 		}
 	}
 	
-	public void BF(Cell [][] grid, boolean visualize) {
+	public ArrayList<Node> BF(Cell [][] grid, boolean visualize, Node current) {
+		this.setStateSpace(transition(current));
+	}
+	
+	public ArrayList<Node> DF(Cell [][] grid, boolean visualize) {
 		
 	}
 	
-	public void DF(Cell [][] grid, boolean visualize) {
+	public ArrayList<Node> UC(Cell [][] grid, boolean visualize) {
 		
 	}
 	
-	public void UC(Cell [][] grid, boolean visualize) {
+	public ArrayList<Node> ID(Cell [][] grid, boolean visualize) {
 		
 	}
 	
-	public void ID(Cell [][] grid, boolean visualize) {
+	public ArrayList<Node> GRi(Cell [][] grid, boolean visualize) {
 		
 	}
 	
-	public void GRi(Cell [][] grid, boolean visualize) {
+	public ArrayList<Node> ASi(Cell [][] grid, boolean visualize) {
 		
 	}
 	
-	public void ASi(Cell [][] grid, boolean visualize) {
-		
+	public ArrayList<State> transition(Node n){
+		ArrayList<State> s = new ArrayList<>();
+		for (int i = 0; i < getOperators().size(); i++) {
+			String operator = getOperators().get(i);
+			switch(operator) {
+			case "up" : if(positionI != 0 && (grid[positionI-1][positionJ].getType().equals("empty") || grid[positionI-1][positionJ].getType().equals("dragonStone"))) {
+				s.add(generateState(positionI-1, positionJ, numWhiteWalkers, currentDragonGlass));
+			}
+			case "down" : if(positionI != grid.length-1 && (grid[positionI+1][positionJ].getType().equals("empty") || grid[positionI+1][positionJ].getType().equals("dragonStone"))) {
+				s.add(generateState(positionI+1, positionJ, numWhiteWalkers, currentDragonGlass));
+			}
+			case "left" : if(positionJ != 0 && (grid[positionI][positionJ-1].getType().equals("empty") || grid[positionI][positionJ-1].getType().equals("dragonStone"))) {
+				s.add(generateState(positionI, positionJ-1, numWhiteWalkers, currentDragonGlass));
+			}
+			case "right" : if(positionI != grid[0].length-1 && (grid[positionI][positionJ+1].getType().equals("empty") || grid[positionI][positionJ+1].getType().equals("dragonStone"))) {
+				s.add(generateState(positionI, positionJ+1, numWhiteWalkers, currentDragonGlass));
+			}
+			case "getDragonGlass" : if(grid[positionI][positionJ].getType().equals("dragonStone") && currentDragonGlass != maxDragonGlass) {
+				s.add(generateState(positionI, positionJ, numWhiteWalkers, maxDragonGlass));
+			}
+			case "attack" : if(positionI != grid[0].length-1 && (grid[positionI][positionJ+1].getType().equals("empty") || grid[positionI][positionJ+1].getType().equals("dragonStone"))) {
+				s.add(generateState(positionI, positionJ+1, numWhiteWalkers, currentDragonGlass));
+			}
+			}
+		}
 	}
 
 }
