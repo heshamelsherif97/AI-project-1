@@ -25,12 +25,12 @@ public class SaveWesteros extends SearchProblem {
 	public SaveWesteros() {
 		super();
 		ArrayList<String> o = new ArrayList<>();
+		o.add("attack");
+		o.add("getDragonGlass");
 		o.add("up");
 		o.add("down");
 		o.add("left");
 		o.add("right");
-		o.add("getDragonGlass");
-		o.add("attack");
 		this.setOperators(o);
 		setStateSpace(new ArrayList<>());
 	}
@@ -51,16 +51,21 @@ public class SaveWesteros extends SearchProblem {
 	public void genGrid() {
 		
 		Random r = new Random();
-		int randomX = r.nextInt(1) + 4;//7
-		int randomY = r.nextInt(1) + 4;//7
+		int randomX = r.nextInt(1) + 3;//7,4
+		int randomY = r.nextInt(1) + 3;//7,4
 		maxDragonGlass = r.nextInt(10) + 1;
 		this.positionI = randomX - 1;
 		this.positionJ = randomY - 1;
 		grid = new Cell[randomX][randomY];
 		grid[this.positionI][this.positionJ] = new Cell("JonSnow", 0);
-		int randomDragonX = r.nextInt(randomX);
-		int randomDragonY = r.nextInt(randomY);
-		grid[randomDragonX][randomDragonY] = new Cell("dragonStone", maxDragonGlass);
+		while(true) {
+			int randomDragonX = r.nextInt(randomX);
+			int randomDragonY = r.nextInt(randomY);
+			if(randomDragonX != positionI && randomDragonY != positionJ) {
+				grid[randomDragonX][randomDragonY] = new Cell("dragonStone", maxDragonGlass);
+				break;
+			}
+		}
 		for (int i = 0; i < grid.length; i++) {
 			for (int j = 0; j < grid[i].length; j++) {
 				if(grid[i][j] == null) {
@@ -96,7 +101,7 @@ public class SaveWesteros extends SearchProblem {
 
 	@Override
 	public boolean goalTest(State s) {
-		if(numWhiteWalkers == 0) {
+		if(Integer.parseInt(s.getState().get(2)) == 0) {
 			return true;
 		}
 		return false;
@@ -155,15 +160,23 @@ public class SaveWesteros extends SearchProblem {
 		for (int i = 0; i < possibleStates.size(); i++) {
 			Node n = new Node(current.getDepth()+1, current.getCost()+1, current, null, possibleStates.get(i).getOperator(), possibleStates.get(0).getState());
 			nodes.add(n);
+			System.out.println(n.getState().getState().toString());
+		}
+		System.out.println(nodes.toString());
+		System.out.println(nodes.size());
+		return nodes;
+	}
+	
+	public ArrayList<Node> DF(Cell [][] grid, boolean visualize, Node current, ArrayList<Node> nodes) {
+		ArrayList<StateWithOperator> possibleStates = transition(current);
+		for (int i = 0; i < possibleStates.size(); i++) {
+			Node n = new Node(current.getDepth()+1, current.getCost()+1, current, null, possibleStates.get(i).getOperator(), possibleStates.get(0).getState());
+			nodes.add(0, n);
 		}
 		System.out.println(nodes.toString());
 		return nodes;
 	}
 	
-//	public ArrayList<Node> DF(Cell [][] grid, boolean visualize) {
-//		
-//	}
-//	
 //	public ArrayList<Node> UC(Cell [][] grid, boolean visualize) {
 //		
 //	}
