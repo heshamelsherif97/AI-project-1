@@ -1,12 +1,14 @@
 package SaveWesteros;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.PriorityQueue;
 import java.util.Random;
 
 import Cell.Cell;
 import genericSearch.SearchProblem;
 import state.State;
+import state.StateWithOperator;
 import tree.Node;
 
 public class SaveWesteros extends SearchProblem {
@@ -16,38 +18,41 @@ public class SaveWesteros extends SearchProblem {
 	private int maxDragonGlass;
 	private int currentDragonGlass;
 	private int numWhiteWalkers;
+	private String whiteWalkersPositions = "";
 	
 	
 	
 	public SaveWesteros() {
 		super();
-		genGrid();
 		ArrayList<String> o = new ArrayList<>();
 		o.add("up");
 		o.add("down");
 		o.add("left");
 		o.add("right");
-		o.add("attack");
 		o.add("getDragonGlass");
+		o.add("attack");
 		this.setOperators(o);
-		this.setInitialState(generateState(positionI, positionJ, numWhiteWalkers, currentDragonGlass));
 		setStateSpace(new ArrayList<>());
 	}
 	
-	public State generateState(int i, int j, int k, int d) {
+	public State generateState(int i, int j, int k, int d, String white) {
 		ArrayList<String> state = new ArrayList<>();
 		state.add(i+"");
 		state.add(j+"");
 		state.add(k+"");
 		state.add(d+"");
+		state.add(white+"");
 		State s = new State(state);
 		return s;
 	}
-
+	
+	
+	
 	public void genGrid() {
+		
 		Random r = new Random();
-		int randomX = r.nextInt(7) + 4;
-		int randomY = r.nextInt(7) + 4;
+		int randomX = r.nextInt(1) + 4;//7
+		int randomY = r.nextInt(1) + 4;//7
 		maxDragonGlass = r.nextInt(10) + 1;
 		this.positionI = randomX - 1;
 		this.positionJ = randomY - 1;
@@ -61,15 +66,20 @@ public class SaveWesteros extends SearchProblem {
 				if(grid[i][j] == null) {
 					int randomSpawn = r.nextInt(3);
 					grid[i][j] = new Cell(generateCell(randomSpawn), 0);
+					if(generateCell(randomSpawn).equals("whiteWalker")) {
+						numWhiteWalkers++;
+						whiteWalkersPositions +=i+","+j+"/";
+					}
 				}
 			}
 		}
+		this.setInitialState(generateState(positionI, positionJ, numWhiteWalkers, currentDragonGlass, whiteWalkersPositions));
 	}
 	
 	public String generateCell(int x) {
 		switch(x) {
 		case 0 : return "empty";
-		case 1 : numWhiteWalkers++; return "whiteWalker";
+		case 1 : return "whiteWalker";
 		case 2 : return "obstacle";
 		default: return "empty";
 		}
@@ -82,11 +92,6 @@ public class SaveWesteros extends SearchProblem {
 			}
 			System.out.println("");
 		}
-	}
-	
-	public static void main(String[] args) {
-		SaveWesteros s= new SaveWesteros();
-		s.printGrid();
 	}
 
 	@Override
@@ -118,80 +123,255 @@ public class SaveWesteros extends SearchProblem {
 //		}
 //	}
 	
-	public void Search(Cell [][] grid, String strategy, boolean visualize) {
+	public Node Search(Cell [][] grid, String strategy, boolean visualize) {
 		Node n = new Node(0, 0, null, null, null, this.getInitialState());
 		ArrayList<Node> nodes = new ArrayList<>();
 		nodes.add(n);
 		while(!nodes.isEmpty()) {
 			if(nodes.isEmpty()) {
-				return;
+				return null;
 			}else {
 				Node current = nodes.remove(0);
 				if(goalTest(current.getState())) {
-					return ;//return node
+					return current;//return node
 				}else {
 					switch(strategy) {
-					case "BF": nodes = BF(grid, visualize, current);break;
-					case "DF": nodes = DF(grid, visualize, current);break;
-					case "ID": nodes = ID(grid, visualize, current);break;
-					case "UC": nodes = UC(grid, visualize, current);break;
-					case "GRi":nodes = GRi(grid, visualize, current);break;
-					case "ASi":nodes = ASi(grid, visualize, current);break;
+					case "BF": nodes = BF(grid, visualize, current, nodes);break;
+//					case "DF": nodes = DF(grid, visualize, current);break;
+//					case "ID": nodes = ID(grid, visualize, current);break;
+//					case "UC": nodes = UC(grid, visualize, current);break;
+//					case "GRi":nodes = GRi(grid, visualize, current);break;
+//					case "ASi":nodes = ASi(grid, visualize, current);break;
 					}
 				}
 			}
 		}
+		return null;
 	}
 	
-	public ArrayList<Node> BF(Cell [][] grid, boolean visualize, Node current) {
-		this.setStateSpace(transition(current));
+	public ArrayList<Node> BF(Cell [][] grid, boolean visualize, Node current, ArrayList<Node> nodes) {
+		//this.setStateSpace(transition(current));
+		ArrayList<StateWithOperator> possibleStates = transition(current);
+		for (int i = 0; i < possibleStates.size(); i++) {
+			Node n = new Node(current.getDepth()+1, current.getCost()+1, current, null, possibleStates.get(i).getOperator(), possibleStates.get(0).getState());
+			nodes.add(n);
+		}
+		System.out.println(nodes.toString());
+		return nodes;
 	}
 	
-	public ArrayList<Node> DF(Cell [][] grid, boolean visualize) {
-		
+//	public ArrayList<Node> DF(Cell [][] grid, boolean visualize) {
+//		
+//	}
+//	
+//	public ArrayList<Node> UC(Cell [][] grid, boolean visualize) {
+//		
+//	}
+//	
+//	public ArrayList<Node> ID(Cell [][] grid, boolean visualize) {
+//		
+//	}
+//	
+//	public ArrayList<Node> GRi(Cell [][] grid, boolean visualize) {
+//		
+//	}
+//	
+//	public ArrayList<Node> ASi(Cell [][] grid, boolean visualize) {
+//		
+//	}
+	
+	public boolean parseStateWhite(State currentState, int i, int j) {
+		if(!grid[i][j].getType().equals("whiteWalker") && !grid[i][j].getType().equals("obstacle")) return false;
+		String whiteWalkersPositions = currentState.getState().get(4);
+		String [] parsedWhite = (whiteWalkersPositions.split("/"));
+		for (int k = 0; k < parsedWhite.length; k++) {
+			int posX = Character.getNumericValue(parsedWhite[k].charAt(0));
+			int posY = Character.getNumericValue(parsedWhite[k].charAt(2));
+			if(posX == i && posY == j) {
+				return true;
+			}
+		}
+		if(grid[i][j].getType().equals("obstacle")) return true;
+		return false;
 	}
 	
-	public ArrayList<Node> UC(Cell [][] grid, boolean visualize) {
-		
-	}
 	
-	public ArrayList<Node> ID(Cell [][] grid, boolean visualize) {
-		
-	}
-	
-	public ArrayList<Node> GRi(Cell [][] grid, boolean visualize) {
-		
-	}
-	
-	public ArrayList<Node> ASi(Cell [][] grid, boolean visualize) {
-		
-	}
-	
-	public ArrayList<State> transition(Node n){
-		ArrayList<State> s = new ArrayList<>();
+	public ArrayList<StateWithOperator> transition(Node n){
+		ArrayList<StateWithOperator> s = new ArrayList<>();
+		State currentState = n.getState();
+		int positionI = Integer.parseInt(currentState.getState().get(0));
+		int positionJ = Integer.parseInt(currentState.getState().get(1));
+		int numWhiteWalkers = Integer.parseInt(currentState.getState().get(2));
+		int currentDragonGlass = Integer.parseInt(currentState.getState().get(3));
+		String whiteWalkersPositions = currentState.getState().get(4);
+
 		for (int i = 0; i < getOperators().size(); i++) {
 			String operator = getOperators().get(i);
 			switch(operator) {
-			case "up" : if(positionI != 0 && (grid[positionI-1][positionJ].getType().equals("empty") || grid[positionI-1][positionJ].getType().equals("dragonStone"))) {
-				s.add(generateState(positionI-1, positionJ, numWhiteWalkers, currentDragonGlass));
-			}
-			case "down" : if(positionI != grid.length-1 && (grid[positionI+1][positionJ].getType().equals("empty") || grid[positionI+1][positionJ].getType().equals("dragonStone"))) {
-				s.add(generateState(positionI+1, positionJ, numWhiteWalkers, currentDragonGlass));
-			}
-			case "left" : if(positionJ != 0 && (grid[positionI][positionJ-1].getType().equals("empty") || grid[positionI][positionJ-1].getType().equals("dragonStone"))) {
-				s.add(generateState(positionI, positionJ-1, numWhiteWalkers, currentDragonGlass));
-			}
-			case "right" : if(positionI != grid[0].length-1 && (grid[positionI][positionJ+1].getType().equals("empty") || grid[positionI][positionJ+1].getType().equals("dragonStone"))) {
-				s.add(generateState(positionI, positionJ+1, numWhiteWalkers, currentDragonGlass));
-			}
-			case "getDragonGlass" : if(grid[positionI][positionJ].getType().equals("dragonStone") && currentDragonGlass != maxDragonGlass) {
-				s.add(generateState(positionI, positionJ, numWhiteWalkers, maxDragonGlass));
-			}
-			case "attack" : if(positionI != grid[0].length-1 && (grid[positionI][positionJ+1].getType().equals("empty") || grid[positionI][positionJ+1].getType().equals("dragonStone"))) {
-				s.add(generateState(positionI, positionJ+1, numWhiteWalkers, currentDragonGlass));
-			}
+			case "up" :
+				if(positionI != 0 &&!parseStateWhite(currentState, positionI-1, positionJ)) {
+				State newState = generateState(positionI-1, positionJ, numWhiteWalkers, currentDragonGlass, whiteWalkersPositions);
+				System.out.println("up");
+				s.add(new StateWithOperator(newState, "up"));
+			}break;
+			case "down" :
+				if(positionI != grid.length-1 && !parseStateWhite(currentState, positionI+1, positionJ)) {
+				System.out.println("down");
+				State newState = generateState(positionI+1, positionJ, numWhiteWalkers, currentDragonGlass, whiteWalkersPositions);
+				s.add(new StateWithOperator(newState, "down"));
+			}break;
+			case "left" :
+				if(positionJ != 0 && !parseStateWhite(currentState, positionI, positionJ-1)) {
+				State newState = generateState(positionI, positionJ-1, numWhiteWalkers, currentDragonGlass, whiteWalkersPositions);
+				s.add(new StateWithOperator(newState, "left"));
+				System.out.println("left");
+			}break;
+			case "right" :
+				if(positionJ != grid[0].length-1 && !parseStateWhite(currentState, positionI, positionJ+1)) {
+				State newState = generateState(positionI, positionJ+1, numWhiteWalkers, currentDragonGlass, whiteWalkersPositions);
+				s.add(new StateWithOperator(newState, "right"));
+				System.out.println("right");
+			}break;
+			case "getDragonGlass" :
+				if(grid[positionI][positionJ].getType().equals("dragonStone") && currentDragonGlass != maxDragonGlass) {
+				State newState = generateState(positionI, positionJ, numWhiteWalkers, maxDragonGlass, whiteWalkersPositions);
+				s.add(new StateWithOperator(newState, "getDragonGlass"));
+				System.out.println("DS");
+			}break;
+			case "attack" :
+				State newState = checkValidAttack(currentState);
+				if(newState!=null) {
+					s.add(new StateWithOperator(newState, "attack"));
+					System.out.println("Attack");
+				}
+				break;
 			}
 		}
+		return s;
 	}
 
+	
+	public State checkValidAttack(State currentState) {
+		
+		int positionI = Integer.parseInt(currentState.getState().get(0));
+		int positionJ = Integer.parseInt(currentState.getState().get(1));
+		int numWhiteWalkers = Integer.parseInt(currentState.getState().get(2));
+		int currentDragonGlass = Integer.parseInt(currentState.getState().get(3));
+		String whiteWalkersPositions = currentState.getState().get(4);
+		boolean attacked = false;
+		if(currentDragonGlass == 0) {
+			return null;
+		}
+		if(positionI!=grid.length-1 && parseStateWhite(currentState, positionI+1, positionJ)) {
+			numWhiteWalkers--;
+			attacked = true;
+			whiteWalkersPositions = removeWhiteWalker(whiteWalkersPositions, positionI+1, positionJ);
+		}
+		if(positionI!=0 && parseStateWhite(currentState, positionI-1, positionJ)) {
+			numWhiteWalkers--;
+			attacked = true;
+			whiteWalkersPositions = removeWhiteWalker(whiteWalkersPositions, positionI-1, positionJ);
+		}
+		if(positionJ!=grid.length-1 && parseStateWhite(currentState, positionI, positionJ+1) ) {
+			numWhiteWalkers--;
+			attacked = true;
+			whiteWalkersPositions = removeWhiteWalker(whiteWalkersPositions, positionI, positionJ+1);
+		}
+		if(positionJ!=0 && parseStateWhite(currentState, positionI, positionJ-1)) {
+			numWhiteWalkers--;
+			attacked = true;
+			whiteWalkersPositions = removeWhiteWalker(whiteWalkersPositions, positionI, positionJ-1);
+		}
+		if(attacked) {
+			currentDragonGlass--;
+			return generateState(positionI, positionJ, numWhiteWalkers, currentDragonGlass, whiteWalkersPositions);
+		}else {
+			return null;
+		}
+	}
+	
+	public String removeWhiteWalker(String currentState, int i, int j) {
+		String whiteWalkersPositions = currentState;
+		String position = i+","+j;
+		String [] parsedWhitePositions = whiteWalkersPositions.split("/");
+		for (int k = 0; k < parsedWhitePositions.length; k++) {
+			if(parsedWhitePositions[k].equals(position)) {
+				parsedWhitePositions[k] = "";
+				break;
+			}
+		} 
+		String newWhitePositions = "";
+		for (int k = 0; k < parsedWhitePositions.length; k++) {
+			newWhitePositions+=parsedWhitePositions[k]+"/";
+		}
+		return newWhitePositions;
+	}
+
+	public static void main(String[] args) {
+		SaveWesteros s= new SaveWesteros();
+		s.genGrid();
+		//State st = s.generateState(0, 0, s.getNumWhiteWalkers(), s.getMaxDragonGlass(), s.getWhiteWalkersPositions());
+		//System.out.println(s.removeWhiteWalker(st, s.getPositionI()-1, s.getPositionJ()));
+		s.printGrid();
+		System.out.println(s.Search(s.getGrid(), "BF", false));
+	}
+
+	public Cell[][] getGrid() {
+		return grid;
+	}
+
+	public void setGrid(Cell[][] grid) {
+		this.grid = grid;
+	}
+
+	public int getPositionI() {
+		return positionI;
+	}
+
+	public void setPositionI(int positionI) {
+		this.positionI = positionI;
+	}
+
+	public int getPositionJ() {
+		return positionJ;
+	}
+
+	public void setPositionJ(int positionJ) {
+		this.positionJ = positionJ;
+	}
+
+	public int getMaxDragonGlass() {
+		return maxDragonGlass;
+	}
+
+	public void setMaxDragonGlass(int maxDragonGlass) {
+		this.maxDragonGlass = maxDragonGlass;
+	}
+
+	public int getCurrentDragonGlass() {
+		return currentDragonGlass;
+	}
+
+	public void setCurrentDragonGlass(int currentDragonGlass) {
+		this.currentDragonGlass = currentDragonGlass;
+	}
+
+	public int getNumWhiteWalkers() {
+		return numWhiteWalkers;
+	}
+
+	public void setNumWhiteWalkers(int numWhiteWalkers) {
+		this.numWhiteWalkers = numWhiteWalkers;
+	}
+
+	public String getWhiteWalkersPositions() {
+		return whiteWalkersPositions;
+	}
+
+	public void setWhiteWalkersPositions(String whiteWalkersPositions) {
+		this.whiteWalkersPositions = whiteWalkersPositions;
+	}
+	
+	
+	
 }
