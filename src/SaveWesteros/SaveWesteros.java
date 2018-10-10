@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.PriorityQueue;
 import java.util.Random;
+import java.util.Stack;
 
 import Cell.Cell;
 import genericSearch.SearchProblem;
@@ -112,13 +113,6 @@ public class SaveWesteros extends SearchProblem {
 		// TODO Auto-generated method stub
 		return 0;
 	}
-
-	@Override
-	public Node genericSearch(SearchProblem s, String strategy) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
 	
 //	public boolean isValid(State s, String operator) {
 //		int posI = Integer.parseInt(s.getState().get(0));
@@ -128,90 +122,37 @@ public class SaveWesteros extends SearchProblem {
 //		}
 //	}
 	
-	public Node Search(Cell [][] grid, String strategy, boolean visualize) {
-		Node n = new Node(0, 0, null, null, null, this.getInitialState());
-		getStateSpace().add(this.getInitialState());
-		ArrayList<Node> nodes = new ArrayList<>();
-		nodes.add(n);
-		while(!nodes.isEmpty()) {
-			if(nodes.isEmpty()) {
-				return null;
-			}else {
-				Node current = nodes.remove(0);
-				if(goalTest(current.getState())) {
-					System.out.println(nodes.toString());
-					System.out.println(nodes.size());
-					return current;//return node
-				}else {
-					switch(strategy) {
-					case "BF": nodes = BF(grid, visualize, current, nodes);break;
-//					case "DF": nodes = DF(grid, visualize, current);break;
-//					case "ID": nodes = ID(grid, visualize, current);break;
-//					case "UC": nodes = UC(grid, visualize, current);break;
-//					case "GRi":nodes = GRi(grid, visualize, current);break;
-//					case "ASi":nodes = ASi(grid, visualize, current);break;
-					}
-				}
-			}
+	public void Search(Cell [][] grid, String strategy, boolean visualize) {//ArrayList<String>
+		Node result = genericSearch(this, strategy);
+		ArrayList<String> output = new ArrayList<>();
+		
+		Stack<Node> s = new Stack<>();
+		Node current = result;
+		if(current == null) System.out.println("No Solution");
+		while(current != null) {
+			s.push(current);
+			current = current.getParent();
 		}
-		System.out.println("No Solution");
-		return null;
-	}
-	
-	public ArrayList<Node> BF(Cell [][] grid, boolean visualize, Node current, ArrayList<Node> nodes) {
-		//this.setStateSpace(transition(current));
-		ArrayList<StateWithOperator> possibleStates = transition(current);
-		for (int i = 0; i < possibleStates.size(); i++) {
-			if(!((possibleStates.get(i)).getState()).checkSameState(getStateSpace())){
-				System.out.println("Check Complete");
-				Node n = new Node(current.getDepth()+1, current.getCost()+1, current, null, possibleStates.get(i).getOperator(), possibleStates.get(i).getState());
-				nodes.add(n);
-				getStateSpace().add(possibleStates.get(i).getState());
-				System.out.println(nodes.toString());
-			}
+		while(!s.isEmpty()) {
+			Node n = s.pop();
+			System.out.println("Current State: "+ n.getState().getState().toString()+ " , Operator done: "+n.getOperator());
 		}
-		return nodes;
 	}
-	
-	public ArrayList<Node> DF(Cell [][] grid, boolean visualize, Node current, ArrayList<Node> nodes) {
-		ArrayList<StateWithOperator> possibleStates = transition(current);
-		for (int i = 0; i < possibleStates.size(); i++) {
-			Node n = new Node(current.getDepth()+1, current.getCost()+1, current, null, possibleStates.get(i).getOperator(), possibleStates.get(0).getState());
-			nodes.add(0, n);
-		}
-		System.out.println(nodes.toString());
-		return nodes;
-	}
-	
-//	public ArrayList<Node> UC(Cell [][] grid, boolean visualize) {
-//		
-//	}
-//	
-//	public ArrayList<Node> ID(Cell [][] grid, boolean visualize) {
-//		
-//	}
-//	
-//	public ArrayList<Node> GRi(Cell [][] grid, boolean visualize) {
-//		
-//	}
-//	
-//	public ArrayList<Node> ASi(Cell [][] grid, boolean visualize) {
-//		
-//	}
-	
+		
 	public boolean parseStateWhite(State currentState, int i, int j) {
 		if(!grid[i][j].getType().equals("whiteWalker") && !grid[i][j].getType().equals("obstacle")) return false;
 		String whiteWalkersPositions = currentState.getState().get(4);
 		String [] parsedWhite = (whiteWalkersPositions.split("/"));
 		for (int k = 0; k < parsedWhite.length; k++) {
-			String [] splitComma = parsedWhite[k].split(",");
-			int posX = Integer.parseInt(splitComma[0]);
-			int posY = Integer.parseInt(splitComma[1]);
-			if(posX == i && posY == j) {
-				return true;
+			if(!parsedWhite[k].equals("")) {
+				String [] splitComma = parsedWhite[k].split(",");
+				int posX = Integer.parseInt(splitComma[0]);
+				int posY = Integer.parseInt(splitComma[1]);
+				if(posX == i && posY == j) {
+					return true;
+				}
 			}
 		}
-		if(grid[i][j].getType().equals("obstacle")) return true;
 		return false;
 	}
 	
@@ -229,22 +170,22 @@ public class SaveWesteros extends SearchProblem {
 			String operator = getOperators().get(i);
 			switch(operator) {
 			case "up" :
-				if(positionI != 0 &&!parseStateWhite(currentState, positionI-1, positionJ)) {
+				if(positionI != 0 &&!parseStateWhite(currentState, positionI-1, positionJ) && !grid[positionI-1][positionJ].getType().equals("obstacle")) {
 				State newState = generateState(positionI-1, positionJ, numWhiteWalkers, currentDragonGlass, whiteWalkersPositions);
 				s.add(new StateWithOperator(newState, "up"));
 			}break;
 			case "down" :
-				if(positionI != grid.length-1 && !parseStateWhite(currentState, positionI+1, positionJ)) {
+				if(positionI != grid.length-1 && !parseStateWhite(currentState, positionI+1, positionJ) && !grid[positionI+1][positionJ].getType().equals("obstacle")) {
 				State newState = generateState(positionI+1, positionJ, numWhiteWalkers, currentDragonGlass, whiteWalkersPositions);
 				s.add(new StateWithOperator(newState, "down"));
 			}break;
 			case "left" :
-				if(positionJ != 0 && !parseStateWhite(currentState, positionI, positionJ-1)) {
+				if(positionJ != 0 && !parseStateWhite(currentState, positionI, positionJ-1) && !grid[positionI][positionJ-1].getType().equals("obstacle")) {
 				State newState = generateState(positionI, positionJ-1, numWhiteWalkers, currentDragonGlass, whiteWalkersPositions);
 				s.add(new StateWithOperator(newState, "left"));
 			}break;
 			case "right" :
-				if(positionJ != grid[0].length-1 && !parseStateWhite(currentState, positionI, positionJ+1)) {
+				if(positionJ != grid[0].length-1 && !parseStateWhite(currentState, positionI, positionJ+1) && !grid[positionI][positionJ+1].getType().equals("obstacle")) {
 				State newState = generateState(positionI, positionJ+1, numWhiteWalkers, currentDragonGlass, whiteWalkersPositions);
 				s.add(new StateWithOperator(newState, "right"));
 			}break;
@@ -331,10 +272,8 @@ public class SaveWesteros extends SearchProblem {
 	public static void main(String[] args) {
 		SaveWesteros s= new SaveWesteros();
 		s.genGrid();
-		//State st = s.generateState(0, 0, s.getNumWhiteWalkers(), s.getMaxDragonGlass(), s.getWhiteWalkersPositions());
-		//System.out.println(s.removeWhiteWalker(st, s.getPositionI()-1, s.getPositionJ()));
-		System.out.println(s.Search(s.getGrid(), "BF", false));
 		s.printGrid();
+		s.Search(s.getGrid(), "BF", false);
 	}
 
 	public Cell[][] getGrid() {
