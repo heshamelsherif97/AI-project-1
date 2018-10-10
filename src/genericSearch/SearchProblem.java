@@ -32,15 +32,15 @@ public abstract class SearchProblem {
 				if(goalTest(current.getState())) {
 					System.out.println(nodes.toString());
 					System.out.println(nodes.size());
-					return current;//return node
+					return current;
 				}else {
 					switch(strategy) {
 					case "BF": nodes = BF(nodes, current.getChildren());break;
 					case "DF": nodes = DF(nodes, current.getChildren());break;
-//					case "ID": nodes = DF(nodes, current.getChildren());break;
-//					case "UC": nodes = DF(nodes, current.getChildren());break;
-//					case "GRi": nodes = DF(nodes, current.getChildren());break;
-//					case "ASi": nodes = DF(nodes, current.getChildren());break;
+					case "ID": nodes = ID(nodes, current.getChildren());break;
+					case "UC": nodes = UC(nodes, current.getChildren());break;
+					case "GRi": nodes = GRi(nodes, current.getChildren());break;
+					case "ASi": nodes = ASi(nodes, current.getChildren());break;
 					}
 				}
 			}
