@@ -52,8 +52,8 @@ public class SaveWesteros extends SearchProblem {
 	public void genGrid() {
 		
 		Random r = new Random();
-		int randomX = r.nextInt(1) + 6;//7,4
-		int randomY = r.nextInt(1) + 6;//7,4
+		int randomX = r.nextInt(1) + 4;//7,4
+		int randomY = r.nextInt(1) + 3;//7,4
 		maxDragonGlass = r.nextInt(10) + 1;
 		this.positionI = randomX - 1;
 		this.positionJ = randomY - 1;
@@ -232,7 +232,7 @@ public class SaveWesteros extends SearchProblem {
 			attacked = true;
 			whiteWalkersPositions = removeWhiteWalker(whiteWalkersPositions, positionI-1, positionJ);
 		}
-		if(positionJ!=grid.length-1 && parseStateWhite(currentState, positionI, positionJ+1) ) {
+		if(positionJ!=grid[0].length-1 && parseStateWhite(currentState, positionI, positionJ+1) ) {
 			numWhiteWalkers--;
 			attacked = true;
 			whiteWalkersPositions = removeWhiteWalker(whiteWalkersPositions, positionI, positionJ+1);
@@ -272,8 +272,9 @@ public class SaveWesteros extends SearchProblem {
 	public static void main(String[] args) {
 		SaveWesteros s= new SaveWesteros();
 		s.genGrid();
-		s.printGrid();
 		s.Search(s.getGrid(), "BF", false);
+		s.printGrid();
+		s.Search(s.getGrid(), "DF", false);
 	}
 
 	public Cell[][] getGrid() {
