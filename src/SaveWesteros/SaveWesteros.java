@@ -78,6 +78,7 @@ public class SaveWesteros extends SearchProblem {
 			}
 		}
 		this.setInitialState(generateState(positionI, positionJ, numWhiteWalkers, currentDragonGlass, whiteWalkersPositions));
+		getStateSpace().add(this.getInitialState());
 	}
 	
 	public String generateCell(int x) {
@@ -111,15 +112,7 @@ public class SaveWesteros extends SearchProblem {
 		// TODO Auto-generated method stub
 		return 0;
 	}
-	
-//	public boolean isValid(State s, String operator) {
-//		int posI = Integer.parseInt(s.getState().get(0));
-//		int posJ = Integer.parseInt(s.getState().get(1));
-//		switch(operator) {
-//		case "up": return checkMove();
-//		}
-//	}
-	
+		
 	public void Search(Cell [][] grid, String strategy, boolean visualize) {//ArrayList<String>
 		Node result = genericSearch(this, strategy);
 		ArrayList<String> output = new ArrayList<>();
@@ -133,7 +126,7 @@ public class SaveWesteros extends SearchProblem {
 		}
 		while(!s.isEmpty()) {
 			Node n = s.pop();
-			System.out.println("Current State: "+ n.getState().getState().toString()+ " , Operator done: "+n.getOperator());
+			System.out.println("Current State: "+ n.getState().getState().toString()+ " , Operator done: "+n.getOperator()+ " , Depth:"+n.getDepth()+ " , Cost:"+n.getCost());
 		}
 	}
 		
@@ -272,7 +265,7 @@ public class SaveWesteros extends SearchProblem {
 		s.genGrid();
 		s.Search(s.getGrid(), "BF", false);
 		s.printGrid();
-		s.Search(s.getGrid(), "DF", false);
+		//s.Search(s.getGrid(), "DF", false);
 	}
 
 	public Cell[][] getGrid() {

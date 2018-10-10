@@ -15,7 +15,6 @@ public abstract class SearchProblem {
 	public abstract ArrayList<StateWithOperator> transition(Node n);
 	
 	public Node genericSearch(SearchProblem s, String strategy) {
-		getStateSpace().add(this.getInitialState());
 		ArrayList<Node> nodes = new ArrayList<>();
 		Node n = new Node(0, 0, null, null, null, this.getInitialState());
 		nodes.add(n);
