@@ -1,7 +1,5 @@
 package state;
 
-import java.util.ArrayList;
-
 public class StateWithOperator {
 	private State state;
 	private String operator;

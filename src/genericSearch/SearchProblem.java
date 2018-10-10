@@ -1,13 +1,9 @@
 package genericSearch;
 
 import java.util.ArrayList;
-import java.util.Queue;
-
-import Cell.Cell;
 import state.State;
 import state.StateWithOperator;
 import tree.Node;
-import tree.Tree;
 
 public abstract class SearchProblem {
 	private ArrayList<String> operators;
