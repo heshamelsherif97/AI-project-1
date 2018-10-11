@@ -11,13 +11,14 @@ public abstract class SearchProblem {
 	private ArrayList<State> stateSpace;
 	
 	public abstract boolean goalTest(State s);
-	public abstract int pathCost();
+	public abstract int pathCost(Node n);
 	public abstract ArrayList<StateWithOperator> transition(Node n);
 	
 	public Node genericSearch(SearchProblem s, String strategy) {
 		ArrayList<Node> nodes = new ArrayList<>();
 		Node n = new Node(0, 0, null, null, null, this.getInitialState());
 		nodes.add(n);
+		int depth = 0;
 		while(!nodes.isEmpty()) {
 			if(nodes.isEmpty()) {
 				return null;
@@ -25,14 +26,27 @@ public abstract class SearchProblem {
 				Node current = nodes.remove(0);
 				current = expand(current);
 				if(goalTest(current.getState())) {
-					System.out.println(nodes.toString());
-					System.out.println(nodes.size());
+//					System.out.println(nodes.toString());
+//					System.out.println(nodes.size());
 					return current;
 				}else {
 					switch(strategy) {
 					case "BF": nodes = BF(nodes, current.getChildren());break;
 					case "DF": nodes = DF(nodes, current.getChildren());break;
-					case "ID": nodes = ID(nodes, current.getChildren());break;
+					case "ID": Node N=ID(current, depth);
+					if(N!=null) {
+						return N;
+					}
+					else {
+						if(depth<30) {
+						depth++;
+						}
+						else {
+							return null;
+						}
+					}
+					
+					break;
 					case "UC": nodes = UC(nodes, current.getChildren());break;
 					case "GRi": nodes = GRi(nodes, current.getChildren());break;
 					case "ASi": nodes = ASi(nodes, current.getChildren());break;
@@ -48,7 +62,7 @@ public abstract class SearchProblem {
 		ArrayList<Node> children = new ArrayList<>();
 		for (int i = 0; i < possibleStates.size(); i++) {
 			if(!((possibleStates.get(i)).getState()).checkSameState(getStateSpace())){
-				System.out.println("Check Complete");
+				//System.out.println("Check Complete");
 				Node newNode = new Node(n.getDepth()+1, n.getCost()+1, n, null, possibleStates.get(i).getOperator(), possibleStates.get(i).getState());
 				children.add(newNode);
 				getStateSpace().add(possibleStates.get(i).getState());
@@ -73,22 +87,70 @@ public abstract class SearchProblem {
 	}
 	
 	public ArrayList<Node> UC(ArrayList<Node> nodes, ArrayList<Node> children) {
-
+		for (int i = 0; i < children.size(); i++) {
+			int j=0;
+			for (j = 0; j < nodes.size(); j++) {
+				if(children.get(i).getCost() < nodes.get(j).getCost()) break;
+			}
+			nodes.add(j, children.get(i));		
+		}
 		return nodes;
 	}
 	
-	public ArrayList<Node> ID(ArrayList<Node> nodes, ArrayList<Node> children) {
-
-		return nodes;
+	public Node ID(Node n, int depth) {
+		
+		ArrayList<Node> newNodes= new ArrayList<>();
+		newNodes.add(n);
+		getStateSpace().removeAll(getStateSpace());
+		int d=0;
+		while(d<=depth) {
+			System.out.println(d);
+			for (int i = 0; i < newNodes.size(); i++) {
+				if(newNodes.get(i).getDepth()==d) {
+					newNodes.get(i).setChildren(expand(newNodes.get(i)).getChildren());
+					for (int k = 0; k < newNodes.get(i).getChildren().size(); k++) {
+						int j=0;
+						for (j = 0; j < newNodes.size(); j++) {
+							if(newNodes.get(i).getChildren().get(k).getCost() < newNodes.get(j).getCost()) break;
+						}
+						newNodes.add(j, newNodes.get(i).getChildren().get(k));		
+					}
+					
+				}
+			}
+			 d++;
+		
+		
 	}
-	
+		for (int i = 0; i < newNodes.size(); i++) {
+			if(goalTest(newNodes.get(i).getState())) {
+				return newNodes.get(i);
+			}
+		
+			
+		}
+		return null;
+		
+	}
 	public ArrayList<Node> GRi(ArrayList<Node> nodes, ArrayList<Node> children) {
-
+		for (int i = 0; i < children.size(); i++) {
+			int j=0;
+			for (j = 0; j < nodes.size(); j++) {
+				if(children.get(i).getHeuristicfun1() < nodes.get(j).getHeuristicfun1()) break;
+			}
+			nodes.add(j, children.get(i));		
+		}
 		return nodes;
 	}
 	
 	public ArrayList<Node> ASi(ArrayList<Node> nodes, ArrayList<Node> children) {
-		
+		for (int i = 0; i < children.size(); i++) {
+			int j=0;
+			for (j = 0; j < nodes.size(); j++) {
+				if(children.get(i).getHeuristicfun1()+children.get(i).getCost() < nodes.get(j).getHeuristicfun1()+nodes.get(j).getCost()) break;
+			}
+			nodes.add(j, children.get(i));		
+		}
 		return nodes;
 	}
 	
