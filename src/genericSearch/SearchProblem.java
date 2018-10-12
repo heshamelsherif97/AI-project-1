@@ -11,8 +11,17 @@ public abstract class SearchProblem {
 	private ArrayList<State> stateSpace;
 	
 	public abstract boolean goalTest(State s);
-	public abstract int pathCost(Node n);
 	public abstract ArrayList<StateWithOperator> transition(Node n);
+	
+	public int pathCost(Node n) {
+		Node current = n;
+		int cost = 0;
+		while(current != null) {
+			cost += current.getCost();
+			current = current.getParent();
+		}
+		return cost;
+	}
 	
 	public Node genericSearch(SearchProblem s, String strategy) {
 		ArrayList<Node> nodes = new ArrayList<>();
@@ -63,7 +72,7 @@ public abstract class SearchProblem {
 		for (int i = 0; i < possibleStates.size(); i++) {
 			if(!((possibleStates.get(i)).getState()).checkSameState(getStateSpace())){
 				//System.out.println("Check Complete");
-				Node newNode = new Node(n.getDepth()+1, n.getCost()+1, n, null, possibleStates.get(i).getOperator(), possibleStates.get(i).getState());
+				Node newNode = new Node(n.getDepth()+1, 1, n, null, possibleStates.get(i).getOperator(), possibleStates.get(i).getState());
 				children.add(newNode);
 				getStateSpace().add(possibleStates.get(i).getState());
 			}
@@ -90,7 +99,7 @@ public abstract class SearchProblem {
 		for (int i = 0; i < children.size(); i++) {
 			int j=0;
 			for (j = 0; j < nodes.size(); j++) {
-				if(children.get(i).getCost() < nodes.get(j).getCost()) break;
+				if(pathCost(children.get(i)) < pathCost(nodes.get(j))) break;
 			}
 			nodes.add(j, children.get(i));		
 		}
@@ -147,7 +156,7 @@ public abstract class SearchProblem {
 		for (int i = 0; i < children.size(); i++) {
 			int j=0;
 			for (j = 0; j < nodes.size(); j++) {
-				if(children.get(i).getHeuristicfun1()+children.get(i).getCost() < nodes.get(j).getHeuristicfun1()+nodes.get(j).getCost()) break;
+				if(children.get(i).getHeuristicfun1()+pathCost(children.get(i)) < nodes.get(j).getHeuristicfun1()+pathCost(nodes.get(j))) break;
 			}
 			nodes.add(j, children.get(i));		
 		}

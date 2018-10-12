@@ -108,16 +108,12 @@ public class SaveWesteros extends SearchProblem {
 		return false;
 	}
 
-	@Override
-	public int pathCost(Node n) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-		
 	public ArrayList<String> Search(Cell [][] grid, String strategy, boolean visualize) {//ArrayList<String>
 		Node result = genericSearch(this, strategy);
 		ArrayList<String> output = new ArrayList<>();
 		String actionSequences = "";
+		int numberOfNodes = 0;
+		int expandedNodes = 0;
 		
 		Stack<Node> s = new Stack<>();
 		Node current = result;
@@ -125,21 +121,23 @@ public class SaveWesteros extends SearchProblem {
 			s.push(current);
 			current = current.getParent();
 		}
-		int numberOfNodes = 0;
 		if(visualize && result!=null) s = visualize(s);
 		while(!s.isEmpty()) {
 			Node n = s.pop();
 			numberOfNodes++;
+			if(n.getParent()!=null) {
+				expandedNodes++;
+			}
 			if(n.getOperator() != null) {
 				actionSequences += n.getOperator()+"/ ";
 			}
 			//System.out.println("Current State: "+ n.getState().getState().toString()+ " , Operator done: "+n.getOperator()+ " , Depth:"+n.getDepth()+ " , Cost:"+n.getCost());
 		}
 		if(result!=null) {
-			output.add(actionSequences);
-			output.add(result.getCost()+"");
-			output.add(numberOfNodes+"");
-
+			output.add("Actions: "+actionSequences);
+			output.add("Solution Cost: "+pathCost(result));
+			output.add("Total number of nodes: "+numberOfNodes);
+			output.add("Expanded nodes: "+expandedNodes);
 		}else {
 			output.add("No Solution");
 			output.add("No Solution");
@@ -335,7 +333,7 @@ public class SaveWesteros extends SearchProblem {
 	public static void main(String[] args) {
 		SaveWesteros s= new SaveWesteros();
 		s.genGrid();
-		ArrayList<String> output = s.Search(s.getGrid(), "BF", true);
+		ArrayList<String> output = s.Search(s.getGrid(), "UC", true);
 		System.out.println(output.toString());
 	}
 
