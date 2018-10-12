@@ -12,6 +12,7 @@ public abstract class SearchProblem {
 	
 	public abstract boolean goalTest(State s);
 	public abstract ArrayList<StateWithOperator> transition(Node n);
+	public abstract int costOfOperator(String operator);
 	
 	public int pathCost(Node n) {
 		Node current = n;
@@ -57,8 +58,10 @@ public abstract class SearchProblem {
 					
 					break;
 					case "UC": nodes = UC(nodes, current.getChildren());break;
-					case "GRi": nodes = GRi(nodes, current.getChildren());break;
-					case "ASi": nodes = ASi(nodes, current.getChildren());break;
+					case "GR1": nodes = GR1(nodes, current.getChildren());break;
+					case "AS1": nodes = AS1(nodes, current.getChildren());break;
+					case "GR2": nodes = GR2(nodes, current.getChildren());break;
+					case "AS2": nodes = AS2(nodes, current.getChildren());break;
 					}
 				}
 			}
@@ -72,7 +75,7 @@ public abstract class SearchProblem {
 		for (int i = 0; i < possibleStates.size(); i++) {
 			if(!((possibleStates.get(i)).getState()).checkSameState(getStateSpace())){
 				//System.out.println("Check Complete");
-				Node newNode = new Node(n.getDepth()+1, 1, n, null, possibleStates.get(i).getOperator(), possibleStates.get(i).getState());
+				Node newNode = new Node(n.getDepth()+1, costOfOperator(possibleStates.get(i).getOperator()), n, null, possibleStates.get(i).getOperator(), possibleStates.get(i).getState());
 				children.add(newNode);
 				getStateSpace().add(possibleStates.get(i).getState());
 			}
@@ -141,7 +144,7 @@ public abstract class SearchProblem {
 		return null;
 		
 	}
-	public ArrayList<Node> GRi(ArrayList<Node> nodes, ArrayList<Node> children) {
+	public ArrayList<Node> GR1(ArrayList<Node> nodes, ArrayList<Node> children) {
 		for (int i = 0; i < children.size(); i++) {
 			int j=0;
 			for (j = 0; j < nodes.size(); j++) {
@@ -152,11 +155,33 @@ public abstract class SearchProblem {
 		return nodes;
 	}
 	
-	public ArrayList<Node> ASi(ArrayList<Node> nodes, ArrayList<Node> children) {
+	public ArrayList<Node> AS1(ArrayList<Node> nodes, ArrayList<Node> children) {
 		for (int i = 0; i < children.size(); i++) {
 			int j=0;
 			for (j = 0; j < nodes.size(); j++) {
 				if(children.get(i).getHeuristicfun1()+pathCost(children.get(i)) < nodes.get(j).getHeuristicfun1()+pathCost(nodes.get(j))) break;
+			}
+			nodes.add(j, children.get(i));		
+		}
+		return nodes;
+	}
+	
+	public ArrayList<Node> GR2(ArrayList<Node> nodes, ArrayList<Node> children) {
+		for (int i = 0; i < children.size(); i++) {
+			int j=0;
+			for (j = 0; j < nodes.size(); j++) {
+				if(children.get(i).getHeuristicfun2() < nodes.get(j).getHeuristicfun2()) break;
+			}
+			nodes.add(j, children.get(i));		
+		}
+		return nodes;
+	}
+	
+	public ArrayList<Node> AS2(ArrayList<Node> nodes, ArrayList<Node> children) {
+		for (int i = 0; i < children.size(); i++) {
+			int j=0;
+			for (j = 0; j < nodes.size(); j++) {
+				if(children.get(i).getHeuristicfun2()+pathCost(children.get(i)) < nodes.get(j).getHeuristicfun2()+pathCost(nodes.get(j))) break;
 			}
 			nodes.add(j, children.get(i));		
 		}

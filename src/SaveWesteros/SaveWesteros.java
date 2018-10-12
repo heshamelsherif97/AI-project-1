@@ -45,6 +45,10 @@ public class SaveWesteros extends SearchProblem {
 		return s;
 	}
 	
+	public int costOfOperator(String operator) {
+		return 1;
+	}
+	
 	
 	
 	public void genGrid() {
