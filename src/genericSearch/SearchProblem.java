@@ -9,6 +9,7 @@ public abstract class SearchProblem {
 	private ArrayList<String> operators;
 	private State initialState;
 	private ArrayList<State> stateSpace;
+	private int expandedNodes = 0;
 	
 	public abstract boolean goalTest(State s);
 	public abstract ArrayList<StateWithOperator> transition(Node n);
@@ -25,38 +26,25 @@ public abstract class SearchProblem {
 	}
 	
 	public Node genericSearch(SearchProblem s, String strategy) {
+		s.getStateSpace().add(s.getInitialState());
 		ArrayList<Node> nodes = new ArrayList<>();
-		Node n = new Node(0, 0, null, null, null, this.getInitialState());
+		Node n = new Node(0, 0, null, null, null, s.getInitialState());
 		nodes.add(n);
-		int depth = 0;
 		while(!nodes.isEmpty()) {
 			if(nodes.isEmpty()) {
 				return null;
 			}else {
 				Node current = nodes.remove(0);
-				current = expand(current);
 				if(goalTest(current.getState())) {
 //					System.out.println(nodes.toString());
 //					System.out.println(nodes.size());
 					return current;
 				}else {
+					current = expand(current, s);
 					switch(strategy) {
 					case "BF": nodes = BF(nodes, current.getChildren());break;
 					case "DF": nodes = DF(nodes, current.getChildren());break;
-					case "ID": Node N=ID(current, depth);
-					if(N!=null) {
-						return N;
-					}
-					else {
-						if(depth<30) {
-						depth++;
-						}
-						else {
-							return null;
-						}
-					}
-					
-					break;
+					case "ID": s.setExpandedNodes(0); return ID(s);
 					case "UC": nodes = UC(nodes, current.getChildren());break;
 					case "GR1": nodes = GR1(nodes, current.getChildren());break;
 					case "AS1": nodes = AS1(nodes, current.getChildren());break;
@@ -69,15 +57,16 @@ public abstract class SearchProblem {
 		return null;
 	}
 	
-	public Node expand(Node n) {
+	public Node expand(Node n, SearchProblem problem) {
+		problem.setExpandedNodes(problem.getExpandedNodes()+1);
 		ArrayList<StateWithOperator> possibleStates = transition(n);
 		ArrayList<Node> children = new ArrayList<>();
 		for (int i = 0; i < possibleStates.size(); i++) {
-			if(!((possibleStates.get(i)).getState()).checkSameState(getStateSpace())){
+			if(!((possibleStates.get(i)).getState()).checkSameState(problem.getStateSpace())){
 				//System.out.println("Check Complete");
 				Node newNode = new Node(n.getDepth()+1, costOfOperator(possibleStates.get(i).getOperator()), n, null, possibleStates.get(i).getOperator(), possibleStates.get(i).getState());
 				children.add(newNode);
-				getStateSpace().add(possibleStates.get(i).getState());
+				problem.getStateSpace().add(possibleStates.get(i).getState());
 			}
 		}
 		n.setChildren(children);
@@ -109,41 +98,51 @@ public abstract class SearchProblem {
 		return nodes;
 	}
 	
-	public Node ID(Node n, int depth) {
-		
-		ArrayList<Node> newNodes= new ArrayList<>();
-		newNodes.add(n);
-		getStateSpace().removeAll(getStateSpace());
-		int d=0;
-		while(d<=depth) {
-			System.out.println(d);
-			for (int i = 0; i < newNodes.size(); i++) {
-				if(newNodes.get(i).getDepth()==d) {
-					newNodes.get(i).setChildren(expand(newNodes.get(i)).getChildren());
-					for (int k = 0; k < newNodes.get(i).getChildren().size(); k++) {
-						int j=0;
-						for (j = 0; j < newNodes.size(); j++) {
-							if(newNodes.get(i).getChildren().get(k).getCost() < newNodes.get(j).getCost()) break;
-						}
-						newNodes.add(j, newNodes.get(i).getChildren().get(k));		
-					}
-					
-				}
-			}
-			 d++;
-		
-		
-	}
-		for (int i = 0; i < newNodes.size(); i++) {
-			if(goalTest(newNodes.get(i).getState())) {
-				return newNodes.get(i);
-			}
-		
+	public Node ID(SearchProblem problem) {
+		int depth = 0;
+		ArrayList<Node> nodes = new ArrayList<>();
+		while(depth <= Integer.MAX_VALUE) {
+	
+
+			problem.getStateSpace().removeAll(problem.getStateSpace());
+
+			problem.getStateSpace().add(problem.getInitialState());
 			
+			Node root = new Node(0, 0, null, null, null, problem.getInitialState());
+			nodes.add(root);
+			System.out.println(depth);
+			Node result = depthLimitedSearch(problem, depth, nodes, 0);
+			if (result != null) {
+				return result;
+			}
+			depth++;
 		}
 		return null;
-		
 	}
+	
+	public Node depthLimitedSearch(SearchProblem problem, int depth, ArrayList<Node> nodes, int index) {
+		Node current = nodes.get(index);
+		System.out.println(problem.getStateSpace().toString());
+		if(depth == 0) {
+			if(goalTest(current.getState())) {
+				return current;
+			}else {
+				return null;
+			}
+		}else if(depth > 0) {
+			current = expand(current, problem);
+			for (int i = 0; i < current.getChildren().size(); i++) {
+				Node child = current.getChildren().get(i);
+				nodes.add(child);
+				Node result = depthLimitedSearch(problem, depth-1, nodes, nodes.indexOf(child));
+				if(result != null) {
+					return result;
+				}
+			}
+		}
+		return null;
+	}
+	
 	public ArrayList<Node> GR1(ArrayList<Node> nodes, ArrayList<Node> children) {
 		for (int i = 0; i < children.size(); i++) {
 			int j=0;
@@ -207,10 +206,11 @@ public abstract class SearchProblem {
 	public void setStateSpace(ArrayList<State> stateSpace) {
 		this.stateSpace = stateSpace;
 	}
-	
-	
-//	public Tree generateTree(State s){
-//
-//	}
+	public int getExpandedNodes() {
+		return expandedNodes;
+	}
+	public void setExpandedNodes(int expandedNodes) {
+		this.expandedNodes = expandedNodes;
+	}
 	
 }

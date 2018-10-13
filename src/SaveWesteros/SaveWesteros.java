@@ -54,8 +54,8 @@ public class SaveWesteros extends SearchProblem {
 	public void genGrid() {
 		
 		Random r = new Random();
-		int randomX = r.nextInt(1) + 4;//7,4
-		int randomY = r.nextInt(1) + 4;//7,4
+		int randomX = r.nextInt(1) + 2;//7,4
+		int randomY = r.nextInt(1) + 2;//7,4
 		maxDragonGlass = r.nextInt(10) + 1;
 		this.positionI = randomX - 1;
 		this.positionJ = randomY - 1;
@@ -82,7 +82,6 @@ public class SaveWesteros extends SearchProblem {
 			}
 		}
 		this.setInitialState(generateState(positionI, positionJ, numWhiteWalkers, currentDragonGlass, whiteWalkersPositions));
-		getStateSpace().add(this.getInitialState());
 	}
 	
 	public String generateCell(int x) {
@@ -116,9 +115,6 @@ public class SaveWesteros extends SearchProblem {
 		Node result = genericSearch(this, strategy);
 		ArrayList<String> output = new ArrayList<>();
 		String actionSequences = "";
-		int numberOfNodes = 0;
-		int expandedNodes = 0;
-		
 		Stack<Node> s = new Stack<>();
 		Node current = result;
 		while(current != null) {
@@ -128,10 +124,6 @@ public class SaveWesteros extends SearchProblem {
 		if(visualize && result!=null) s = visualize(s);
 		while(!s.isEmpty()) {
 			Node n = s.pop();
-			numberOfNodes++;
-			if(n.getParent()!=null) {
-				expandedNodes++;
-			}
 			if(n.getOperator() != null) {
 				actionSequences += n.getOperator()+"/ ";
 			}
@@ -140,12 +132,11 @@ public class SaveWesteros extends SearchProblem {
 		if(result!=null) {
 			output.add("Actions: "+actionSequences);
 			output.add("Solution Cost: "+pathCost(result));
-			output.add("Total number of nodes: "+numberOfNodes);
-			output.add("Expanded nodes: "+expandedNodes);
+			output.add("Expanded nodes: "+getExpandedNodes());
 		}else {
 			output.add("No Solution");
 			output.add("No Solution");
-			output.add("No Solution");
+			output.add("Expanded nodes: "+getExpandedNodes());
 		}
 		return output;
 	}
@@ -337,8 +328,11 @@ public class SaveWesteros extends SearchProblem {
 	public static void main(String[] args) {
 		SaveWesteros s= new SaveWesteros();
 		s.genGrid();
-		ArrayList<String> output = s.Search(s.getGrid(), "UC", true);
+		s.printGrid();
+		System.out.println("Searching for Solotion");
+		ArrayList<String> output = s.Search(s.getGrid(), "BF", true);
 		System.out.println(output.toString());
+
 	}
 
 	public Cell[][] getGrid() {
