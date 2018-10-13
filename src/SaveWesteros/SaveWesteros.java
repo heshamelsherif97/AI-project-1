@@ -330,7 +330,7 @@ public class SaveWesteros extends SearchProblem {
 		s.genGrid();
 		s.printGrid();
 		System.out.println("Searching for Solotion");
-		ArrayList<String> output = s.Search(s.getGrid(), "BF", true);
+		ArrayList<String> output = s.Search(s.getGrid(), "ID", true);
 		System.out.println(output.toString());
 
 	}
