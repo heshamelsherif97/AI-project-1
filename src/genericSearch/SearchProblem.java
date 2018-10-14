@@ -123,7 +123,6 @@ public abstract class SearchProblem {
 	
 	public Node depthLimitedSearch(SearchProblem problem, int depth, ArrayList<Node> nodes, int index) {
 		Node current = nodes.get(index);
-		System.out.println(problem.getStateSpace().toString());
 		if(depth == 0) {
 			if(goalTest(current.getState())) {
 				return current;

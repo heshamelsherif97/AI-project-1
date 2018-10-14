@@ -124,8 +124,8 @@ public class SaveWesteros extends SearchProblem {
 	public void genGrid() {
 		
 		Random r = new Random();
-		int randomX = r.nextInt(1) + 3;//7,4
-		int randomY = r.nextInt(1) + 3;//7,4
+		int randomX = r.nextInt(1) + 6;//7,4
+		int randomY = r.nextInt(1) + 6;//7,4
 		maxDragonGlass = r.nextInt(10) + 1;
 		this.positionI = randomX - 1;
 		this.positionJ = randomY - 1;
