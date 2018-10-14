@@ -11,8 +11,8 @@ public class Node {
 	private ArrayList<Node> children;
 	private String operator;
 	private State state;
-	private double heuristicfun1;
-	private double heuristicfun2;
+	private int heuristicfun1;
+	private int heuristicfun2;
 	
 	public Node(int depth, int cost, Node parent, ArrayList<Node> children, String operator, State state) {
 		super();
@@ -33,7 +33,7 @@ public class Node {
 		return heuristicfun1;
 	}
 
-	public void setHeuristicfun1(double heuristicfun1) {
+	public void setHeuristicfun1(int heuristicfun1) {
 		this.heuristicfun1 = heuristicfun1;
 	}
 
@@ -41,7 +41,7 @@ public class Node {
 		return heuristicfun2;
 	}
 
-	public void setHeuristicfun2(double heuristicfun2) {
+	public void setHeuristicfun2(int heuristicfun2) {
 		this.heuristicfun2 = heuristicfun2;
 	}
 

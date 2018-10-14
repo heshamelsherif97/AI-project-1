@@ -14,6 +14,9 @@ public abstract class SearchProblem {
 	public abstract boolean goalTest(State s);
 	public abstract ArrayList<StateWithOperator> transition(Node n);
 	public abstract int costOfOperator(String operator);
+	public abstract Node heuristicfun1(Node n);
+	public abstract void heuristicfun2(Node n);
+
 	
 	public int pathCost(Node n) {
 		Node current = n;
@@ -29,6 +32,7 @@ public abstract class SearchProblem {
 		s.getStateSpace().add(s.getInitialState());
 		ArrayList<Node> nodes = new ArrayList<>();
 		Node n = new Node(0, 0, null, null, null, s.getInitialState());
+		n = s.heuristicfun1(n);
 		nodes.add(n);
 		while(!nodes.isEmpty()) {
 			if(nodes.isEmpty()) {
@@ -65,6 +69,7 @@ public abstract class SearchProblem {
 			if(!((possibleStates.get(i)).getState()).checkSameState(problem.getStateSpace())){
 				//System.out.println("Check Complete");
 				Node newNode = new Node(n.getDepth()+1, problem.costOfOperator(possibleStates.get(i).getOperator()), n, null, possibleStates.get(i).getOperator(), possibleStates.get(i).getState());
+				newNode = problem.heuristicfun1(newNode);
 				children.add(newNode);
 				problem.getStateSpace().add(possibleStates.get(i).getState());
 			}

@@ -14,6 +14,8 @@ public class SaveWesteros extends SearchProblem {
 	private Cell [][] grid;
 	private int positionI;
 	private int positionJ;
+	private int positionIDragon;
+	private int positionJDragon;
 	private int maxDragonGlass;
 	private int currentDragonGlass;
 	private int numWhiteWalkers;
@@ -49,13 +51,81 @@ public class SaveWesteros extends SearchProblem {
 		return 1;
 	}
 	
+	public Node heuristicfun1(Node n) {
+		ArrayList<String> state = n.getState().getState();
+		int positionI = Integer.parseInt(state.get(0));
+		int positionJ = Integer.parseInt(state.get(1));
+		int numWhiteWalkers = Integer.parseInt(state.get(2));
+		int currentDragonGlass = Integer.parseInt(state.get(3));
+		int dragonI = getPositionIDragon();
+		int dragonJ = getPositionJDragon();
+		int maxDragon = getMaxDragonGlass();
+		int h = 0;
+		if(numWhiteWalkers == 0) {
+			h = 0;
+		}else if(currentDragonGlass == 0) {
+			h = (int)Math.sqrt(Math.pow(positionI - dragonI, 2) + Math.pow(positionJ - dragonJ, 2));
+		}else if(currentDragonGlass == maxDragon) {
+			h = numWhiteWalkers - numAdjacentWW(n.getState(), positionI, positionJ);
+		}else if(currentDragonGlass < numWhiteWalkers/3) {
+			h = (int)Math.sqrt(Math.pow(positionI - dragonI, 2) + Math.pow(positionJ - dragonJ, 2));
+			h = Math.min(h, numWhiteWalkers - numAdjacentWW(n.getState(), positionI, positionJ));
+		}else if(currentDragonGlass >= numWhiteWalkers/3) {
+			h = numWhiteWalkers - numAdjacentWW(n.getState(), positionI, positionJ);
+		}
+		n.setHeuristicfun1(h); 
+		return n;
+	}
 	
+	public int isWhiteWalker(State s, int i, int j) {
+		if(parseStateWhite(s, i, j)) {
+			return 1;
+		}
+		return 0;
+	}
+	
+	private int numAdjacentWW(State s,int i, int j) {
+		int num = 0;
+		if(i == 0) {
+			if(j == 0) {
+				num += (isWhiteWalker(s, i+1, j) + isWhiteWalker(s, i, j+1));
+			}else if(j == getGrid()[0].length-1){
+				num += (isWhiteWalker(s, i, j-1) + isWhiteWalker(s, i+1, j));
+			}else {
+				num += (isWhiteWalker(s, i, j-1) + isWhiteWalker(s, i+1, j) + isWhiteWalker(s, i, j+1));
+			}
+		} else if(i == getGrid().length-1) {
+			if(j == 0) {
+				num += (isWhiteWalker(s, i-1, j) + isWhiteWalker(s, i, j+1));
+			}else if(j == getGrid()[0].length-1){
+				num += (isWhiteWalker(s, i-1, j) + isWhiteWalker(s, i, j-1));
+			}else {
+				num += (isWhiteWalker(s, i, j-1) + isWhiteWalker(s, i-1, j) + isWhiteWalker(s, i, j+1));
+			}
+		}else if(j == 0) {
+			if(i > 0 && i < getGrid().length-1) {
+				num += (isWhiteWalker(s, i+1, j) + isWhiteWalker(s, i, j+1) + isWhiteWalker(s, i-1, j));
+			}
+		}else if(j == getGrid()[0].length-1) {
+			if(i > 0 && i < getGrid().length-1) {
+				num += (isWhiteWalker(s, i+1, j) + isWhiteWalker(s, i, j-1) + isWhiteWalker(s, i-1, j));
+			}
+		}else {
+			num += (isWhiteWalker(s, i+1, j) + isWhiteWalker(s, i, j-1) + isWhiteWalker(s, i-1, j) + isWhiteWalker(s, i, j+1));
+		}
+		
+		return num;
+	}
+
+	public void heuristicfun2(Node n) {
+		
+	}
 	
 	public void genGrid() {
 		
 		Random r = new Random();
-		int randomX = r.nextInt(1) + 2;//7,4
-		int randomY = r.nextInt(1) + 2;//7,4
+		int randomX = r.nextInt(1) + 3;//7,4
+		int randomY = r.nextInt(1) + 3;//7,4
 		maxDragonGlass = r.nextInt(10) + 1;
 		this.positionI = randomX - 1;
 		this.positionJ = randomY - 1;
@@ -66,6 +136,8 @@ public class SaveWesteros extends SearchProblem {
 			int randomDragonY = r.nextInt(randomY);
 			if(randomDragonX != positionI && randomDragonY != positionJ) {
 				grid[randomDragonX][randomDragonY] = new Cell("dragonStone", maxDragonGlass);
+				positionIDragon = randomDragonX;
+				positionJDragon = randomDragonY;
 				break;
 			}
 		}
@@ -181,6 +253,9 @@ public class SaveWesteros extends SearchProblem {
 			}
 			adjustWhiteWalkers(whiteWalkersPositions);
 			System.out.println("Current DragonGlass: "+ Integer.parseInt(current.get(3)));
+			System.out.println("Heuristic Cost: "+ poped.getHeuristicfun1());
+			System.out.println("State: "+ poped.getState().getState().toString());
+
 			printGrid();
 		}
 		while(!oldS.isEmpty()) {
@@ -330,7 +405,7 @@ public class SaveWesteros extends SearchProblem {
 		s.genGrid();
 		s.printGrid();
 		System.out.println("Searching for Solotion");
-		ArrayList<String> output = s.Search(s.getGrid(), "ID", true);
+		ArrayList<String> output = s.Search(s.getGrid(), "AS1", true);
 		System.out.println(output.toString());
 
 	}
@@ -377,6 +452,22 @@ public class SaveWesteros extends SearchProblem {
 
 	public int getNumWhiteWalkers() {
 		return numWhiteWalkers;
+	}
+
+	public int getPositionIDragon() {
+		return positionIDragon;
+	}
+
+	public void setPositionIDragon(int positionIDragon) {
+		this.positionIDragon = positionIDragon;
+	}
+
+	public int getPositionJDragon() {
+		return positionJDragon;
+	}
+
+	public void setPositionJDragon(int positionJDragon) {
+		this.positionJDragon = positionJDragon;
 	}
 
 	public void setNumWhiteWalkers(int numWhiteWalkers) {
