@@ -1,5 +1,11 @@
 package SaveWesteros;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Stack;
@@ -117,8 +123,9 @@ public class SaveWesteros extends SearchProblem {
 		return num;
 	}
 
-	public void heuristicfun2(Node n) {
+	public Node heuristicfun2(Node n) {
 		
+		return n;
 	}
 	
 	public void genGrid() {
@@ -155,6 +162,48 @@ public class SaveWesteros extends SearchProblem {
 		}
 		this.setInitialState(generateState(positionI, positionJ, numWhiteWalkers, currentDragonGlass, whiteWalkersPositions));
 	}
+		
+	public void genGrid2(String filePath, int maxD) throws IOException {
+		BufferedReader bf = new BufferedReader(new FileReader(filePath));
+		String st;
+		ArrayList<String []> cells = new ArrayList<>();
+		while ((st = bf.readLine()) != null) {
+			String [] splitComma = st.split(",");
+			cells.add(splitComma);
+		}
+		int rows = cells.size();
+		int cols = cells.get(0).length;
+		grid = new Cell[rows][cols];
+		for (int i = 0; i < rows; i++) {
+			for (int j = 0; j < cols; j++) {
+				switch(cells.get(i)[j].trim()) {
+				case "emp": 
+					grid[i][j] = new Cell("empty", 0);
+					break;
+				case "dra": 
+					grid[i][j] = new Cell("dragonStone", maxD);
+					maxDragonGlass = maxD;
+					positionIDragon = i;
+					positionJDragon = j;
+					break;
+				case "whi": 
+					grid[i][j] = new Cell("whiteWalker", 0);
+					numWhiteWalkers++;
+					whiteWalkersPositions +=i+","+j+"/";
+					break;
+				case "Jon":
+					grid[i][j] = new Cell("JonSnow", 0);
+					this.positionI = i;
+					this.positionJ = j;
+					break;
+				case "obs":
+					grid[i][j] = new Cell("obstacle", 0);
+					break;
+				}
+			}
+		}
+		this.setInitialState(generateState(positionI, positionJ, numWhiteWalkers, currentDragonGlass, whiteWalkersPositions));
+	}
 	
 	public String generateCell(int x) {
 		switch(x) {
@@ -165,7 +214,7 @@ public class SaveWesteros extends SearchProblem {
 		}
 	}
 	
-	public void printGrid() {
+	public void printGrid(Cell [][] grid) {
 		for (int i = 0; i < grid.length; i++) {
 			for (int j = 0; j < grid[i].length; j++) {
 				System.out.print(grid[i][j].getType().substring(0, 3) + ", ");
@@ -213,10 +262,21 @@ public class SaveWesteros extends SearchProblem {
 		return output;
 	}
 	
+	public Cell[][] cloneGrid() {
+		Cell [][] clone = new Cell[grid.length][grid[0].length];
+		for (int i = 0; i < clone.length; i++) {
+			for (int j = 0; j < clone[0].length; j++) {
+				Cell c = grid[i][j];
+				clone[i][j] = new Cell(c.getType(), c.getDragonGlass());
+			}
+		}
+		return clone;
+	}
+	
 	public Stack<Node> visualize(Stack<Node> s) {
 		Stack<Node> oldS = new Stack<>();
 		Stack<Node> newS = new Stack<>();
-		Cell[][] grid = this.grid;
+		Cell[][] grid2 = cloneGrid();
 		while(!s.isEmpty()) {
 			Node poped = s.pop();
 			oldS.push(poped);
@@ -224,30 +284,30 @@ public class SaveWesteros extends SearchProblem {
 			int positionI = Integer.parseInt(current.get(0));
 			int positionJ = Integer.parseInt(current.get(1));
 			String whiteWalkersPositions = current.get(4);
-			for (int i = 0; i < grid.length; i++) {
-				for (int j = 0; j < grid[0].length; j++) {
-					if(grid[i][j].getType().equals("dragonStone") || grid[i][j].getType().equals("JDS")) {
+			for (int i = 0; i < grid2.length; i++) {
+				for (int j = 0; j < grid2[0].length; j++) {
+					if(grid2[i][j].getType().equals("dragonStone") || grid2[i][j].getType().equals("JDS")) {
 						if(positionI == i && positionJ ==j) {
-							grid[i][j].setType("JDS");
+							grid2[i][j].setType("JDS");
 						}else {
-							grid[i][j].setType("dragonStone");
+							grid2[i][j].setType("dragonStone");
 						}
 					}
-					if(grid[i][j].getType().equals("empty") && positionI == i && positionJ == j) {
-						grid[i][j].setType("JonSnow");
+					if(grid2[i][j].getType().equals("empty") && positionI == i && positionJ == j) {
+						grid2[i][j].setType("JonSnow");
 					}
-					if(grid[i][j].getType().equals("empty") && positionI != i && positionJ != j) {
-						grid[i][j].setType("empty");
+					if(grid2[i][j].getType().equals("empty") && positionI != i && positionJ != j) {
+						grid2[i][j].setType("empty");
 					}
-					if(grid[i][j].getType().equals("JonSnow")) {
+					if(grid2[i][j].getType().equals("JonSnow")) {
 						if(positionI == i && positionJ == j) {
-							grid[i][j].setType("JonSnow");
+							grid2[i][j].setType("JonSnow");
 						}else {
-							grid[i][j].setType("empty");
+							grid2[i][j].setType("empty");
 						}
 					}
-					if(grid[i][j].getType().equals("whiteWalker")) {
-						grid[i][j].setType("empty");
+					if(grid2[i][j].getType().equals("whiteWalker")) {
+						grid2[i][j].setType("empty");
 					}
 				}
 			}
@@ -256,7 +316,7 @@ public class SaveWesteros extends SearchProblem {
 			System.out.println("Heuristic Cost: "+ poped.getHeuristicfun1());
 			System.out.println("State: "+ poped.getState().getState().toString());
 
-			printGrid();
+			printGrid(grid2);
 		}
 		while(!oldS.isEmpty()) {
 			newS.push(oldS.pop());
@@ -399,15 +459,89 @@ public class SaveWesteros extends SearchProblem {
 		}
 		return newWhitePositions;
 	}
+	
+	public void deleteFiles() {
+        ArrayList<File> files = new ArrayList<>();
+        files.add(new File("BF.txt"));
+        files.add(new File("DF.txt"));
+        files.add(new File("UC.txt"));
+        files.add(new File("ID.txt"));
+        files.add(new File("GR1.txt"));
+        files.add(new File("GR2.txt"));
+        files.add(new File("AS1.txt"));
+        files.add(new File("AS2.txt"));
+        for (int i = 0; i < files.size(); i++) 
+            files.get(i).delete();
+	}
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws FileNotFoundException {
 		SaveWesteros s= new SaveWesteros();
-		s.genGrid();
-		s.printGrid();
-		System.out.println("Searching for Solotion");
-		ArrayList<String> output = s.Search(s.getGrid(), "AS1", true);
+		//s.genGrid();
+		try {
+			s.genGrid2("p1.txt", 1);
+		} catch (IOException e) {
+			System.out.println("File Not Found");
+			System.exit(0);
+		}
+		s.deleteFiles();
+		PrintStream console = System.out;
+		System.out.println("Searching using BF");
+		PrintStream fileStream = new PrintStream("BF.txt");
+		System.setOut(fileStream);
+		ArrayList<String> output = s.Search(s.getGrid(), "BF", true);
 		System.out.println(output.toString());
-
+		System.out.println("---------------------------------------------------");
+		System.setOut(console);
+		System.out.println("Searching using DF");
+		fileStream = new PrintStream("DF.txt");
+		System.setOut(fileStream);
+		ArrayList<String> output2 = s.Search(s.getGrid(), "DF", true);
+		System.out.println(output2.toString());
+		System.out.println("---------------------------------------------------");
+		System.setOut(console);
+		System.out.println("Searching using UC");
+		fileStream = new PrintStream("UC.txt");
+		System.setOut(fileStream);
+		ArrayList<String> output3 = s.Search(s.getGrid(), "UC", true);
+		System.out.println(output3.toString());
+		System.out.println("---------------------------------------------------");
+		System.setOut(console);
+		System.out.println("Searching using ID");
+		fileStream = new PrintStream("ID.txt");
+		System.setOut(fileStream);
+		ArrayList<String> output4 = s.Search(s.getGrid(), "ID", true);
+		System.out.println(output4.toString());
+		System.out.println("---------------------------------------------------");
+		System.setOut(console);
+		System.out.println("Searching using GR1");
+		fileStream = new PrintStream("GR1.txt");
+		System.setOut(fileStream);
+		ArrayList<String> output5 = s.Search(s.getGrid(), "GR1", true);
+		System.out.println(output5.toString());
+		System.out.println("---------------------------------------------------");
+		System.setOut(console);
+		System.out.println("Searching using GR2");
+		fileStream = new PrintStream("GR2.txt");
+		System.setOut(fileStream);
+		ArrayList<String> output6 = s.Search(s.getGrid(), "GR2", true);
+		System.out.println(output6.toString());
+		System.out.println("---------------------------------------------------");
+		System.setOut(console);
+		System.out.println("Searching using AS1");
+		fileStream = new PrintStream("AS1.txt");
+		System.setOut(fileStream);
+		ArrayList<String> output7 = s.Search(s.getGrid(), "AS1", true);
+		System.out.println(output7.toString());
+		System.out.println("---------------------------------------------------");
+		System.setOut(console);
+		System.out.println("Searching using AS2");
+		fileStream = new PrintStream("AS2.txt");
+		System.setOut(fileStream);
+		ArrayList<String> output8 = s.Search(s.getGrid(), "AS2", true);
+		System.out.println(output8.toString());
+		System.out.println("---------------------------------------------------");
+		System.setOut(console);
+		System.out.println("Done :)");
 	}
 
 	public Cell[][] getGrid() {

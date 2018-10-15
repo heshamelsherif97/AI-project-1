@@ -15,7 +15,7 @@ public abstract class SearchProblem {
 	public abstract ArrayList<StateWithOperator> transition(Node n);
 	public abstract int costOfOperator(String operator);
 	public abstract Node heuristicfun1(Node n);
-	public abstract void heuristicfun2(Node n);
+	public abstract Node heuristicfun2(Node n);
 
 	
 	public int pathCost(Node n) {
@@ -29,6 +29,8 @@ public abstract class SearchProblem {
 	}
 	
 	public static Node genericSearch(SearchProblem s, String strategy) {
+		s.getStateSpace().removeAll(s.getStateSpace());
+		s.setExpandedNodes(0);
 		s.getStateSpace().add(s.getInitialState());
 		ArrayList<Node> nodes = new ArrayList<>();
 		Node n = new Node(0, 0, null, null, null, s.getInitialState());
@@ -40,8 +42,6 @@ public abstract class SearchProblem {
 			}else {
 				Node current = nodes.remove(0);
 				if(s.goalTest(current.getState())) {
-//					System.out.println(nodes.toString());
-//					System.out.println(nodes.size());
 					return current;
 				}else {
 					current = expand(current, s);
@@ -67,9 +67,9 @@ public abstract class SearchProblem {
 		ArrayList<Node> children = new ArrayList<>();
 		for (int i = 0; i < possibleStates.size(); i++) {
 			if(!((possibleStates.get(i)).getState()).checkSameState(problem.getStateSpace())){
-				//System.out.println("Check Complete");
 				Node newNode = new Node(n.getDepth()+1, problem.costOfOperator(possibleStates.get(i).getOperator()), n, null, possibleStates.get(i).getOperator(), possibleStates.get(i).getState());
 				newNode = problem.heuristicfun1(newNode);
+				newNode = problem.heuristicfun2(newNode);
 				children.add(newNode);
 				problem.getStateSpace().add(possibleStates.get(i).getState());
 			}
@@ -111,7 +111,6 @@ public abstract class SearchProblem {
 			ArrayList<Node> nodes = new ArrayList<>();
 			Node root = new Node(0, 0, null, null, null, problem.getInitialState());
 			nodes.add(root);
-			System.out.println(depth);
 			Node result = depthLimitedSearch(problem, depth, nodes, 0);
 			if (result != null) {
 				return result;
