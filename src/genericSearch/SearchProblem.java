@@ -122,6 +122,7 @@ public abstract class SearchProblem {
 	
 	public Node depthLimitedSearch(SearchProblem problem, int depth, ArrayList<Node> nodes, int index) {
 		Node current = nodes.get(index);
+		System.out.println(nodes.toString());
 		if(depth == 0) {
 			if(goalTest(current.getState())) {
 				return current;
@@ -132,12 +133,24 @@ public abstract class SearchProblem {
 			current = expand(current, problem);
 			for (int i = 0; i < current.getChildren().size(); i++) {
 				Node child = current.getChildren().get(i);
-				nodes.add(child);
+				int j=0;
+				for (j = 0; j < nodes.size(); j++) {
+					if(pathCost(current.getChildren().get(i)) < pathCost(nodes.get(j))) break;
+				}
+				nodes.add(j, current.getChildren().get(i));
 				Node result = depthLimitedSearch(problem, depth-1, nodes, nodes.indexOf(child));
 				if(result != null) {
 					return result;
 				}
 			}
+//			for (int i = 0; i < current.getChildren().size(); i++) {
+//				Node child = current.getChildren().get(i);
+//				nodes.add(child);
+//				Node result = depthLimitedSearch(problem, depth-1, nodes, nodes.indexOf(child));
+//				if(result != null) {
+//					return result;
+//				}
+//			}
 		}
 		return null;
 	}

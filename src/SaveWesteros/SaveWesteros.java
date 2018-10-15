@@ -163,10 +163,11 @@ public class SaveWesteros extends SearchProblem {
 		this.setInitialState(generateState(positionI, positionJ, numWhiteWalkers, currentDragonGlass, whiteWalkersPositions));
 	}
 		
-	public void genGrid2(String filePath, int maxD) throws IOException {
+	public void genGrid2(String filePath) throws IOException {
 		BufferedReader bf = new BufferedReader(new FileReader(filePath));
 		String st;
 		ArrayList<String []> cells = new ArrayList<>();
+		int maxD = Integer.parseInt(bf.readLine());
 		while ((st = bf.readLine()) != null) {
 			String [] splitComma = st.split(",");
 			cells.add(splitComma);
@@ -248,7 +249,6 @@ public class SaveWesteros extends SearchProblem {
 			if(n.getOperator() != null) {
 				actionSequences += n.getOperator()+"/ ";
 			}
-			//System.out.println("Current State: "+ n.getState().getState().toString()+ " , Operator done: "+n.getOperator()+ " , Depth:"+n.getDepth()+ " , Cost:"+n.getCost());
 		}
 		if(result!=null) {
 			output.add("Actions: "+actionSequences);
@@ -311,9 +311,10 @@ public class SaveWesteros extends SearchProblem {
 					}
 				}
 			}
-			adjustWhiteWalkers(whiteWalkersPositions);
+			grid2 = adjustWhiteWalkers(whiteWalkersPositions, grid2);
 			System.out.println("Current DragonGlass: "+ Integer.parseInt(current.get(3)));
-			System.out.println("Heuristic Cost: "+ poped.getHeuristicfun1());
+			System.out.println("Heuristic1 Cost: "+ poped.getHeuristicfun1());
+			System.out.println("Heuristic2 Cost: "+ poped.getHeuristicfun2());
 			System.out.println("State: "+ poped.getState().getState().toString());
 
 			printGrid(grid2);
@@ -324,7 +325,7 @@ public class SaveWesteros extends SearchProblem {
 		return newS;
 	}
 	
-	public void adjustWhiteWalkers(String s) {
+	public Cell[][] adjustWhiteWalkers(String s, Cell[][] grid) {
 		String [] parsedWhite = (s.split("/"));
 		for (int k = 0; k < parsedWhite.length; k++) {
 			if(!parsedWhite[k].equals("")) {
@@ -334,6 +335,7 @@ public class SaveWesteros extends SearchProblem {
 				grid[posX][posY].setType("whiteWalker");
 			}
 		}
+		return grid;
 	}
 		
 	public boolean parseStateWhite(State currentState, int i, int j) {
@@ -478,70 +480,63 @@ public class SaveWesteros extends SearchProblem {
 		SaveWesteros s= new SaveWesteros();
 		//s.genGrid();
 		try {
-			s.genGrid2("p1.txt", 1);
+			s.genGrid2("p1.txt");
 		} catch (IOException e) {
 			System.out.println("File Not Found");
 			System.exit(0);
 		}
 		s.deleteFiles();
-		PrintStream console = System.out;
-		System.out.println("Searching using BF");
-		PrintStream fileStream = new PrintStream("BF.txt");
-		System.setOut(fileStream);
-		ArrayList<String> output = s.Search(s.getGrid(), "BF", true);
-		System.out.println(output.toString());
-		System.out.println("---------------------------------------------------");
-		System.setOut(console);
-		System.out.println("Searching using DF");
-		fileStream = new PrintStream("DF.txt");
-		System.setOut(fileStream);
-		ArrayList<String> output2 = s.Search(s.getGrid(), "DF", true);
-		System.out.println(output2.toString());
-		System.out.println("---------------------------------------------------");
-		System.setOut(console);
-		System.out.println("Searching using UC");
-		fileStream = new PrintStream("UC.txt");
-		System.setOut(fileStream);
-		ArrayList<String> output3 = s.Search(s.getGrid(), "UC", true);
-		System.out.println(output3.toString());
-		System.out.println("---------------------------------------------------");
-		System.setOut(console);
-		System.out.println("Searching using ID");
-		fileStream = new PrintStream("ID.txt");
-		System.setOut(fileStream);
+		PrintStream fileStream;
+//		fileStream = new PrintStream("BF.txt");
+//		PrintStream console = System.out;
+//		System.out.println("Searching using BF");
+//		System.setOut(fileStream);
+//		ArrayList<String> output = s.Search(s.getGrid(), "BF", true);
+//		System.out.println(output.toString());
+//		System.setOut(console);
+//		System.out.println("Searching using DF");
+//		fileStream = new PrintStream("DF.txt");
+//		System.setOut(fileStream);
+//		ArrayList<String> output2 = s.Search(s.getGrid(), "DF", true);
+//		System.out.println(output2.toString());
+//		System.setOut(console);
+//		System.out.println("Searching using UC");
+//		fileStream = new PrintStream("UC.txt");
+//		System.setOut(fileStream);
+//		ArrayList<String> output3 = s.Search(s.getGrid(), "UC", true);
+//		System.out.println(output3.toString());
+//		System.setOut(console);
+//		System.out.println("Searching using ID");
+//		fileStream = new PrintStream("ID.txt");
+//		System.setOut(fileStream);
 		ArrayList<String> output4 = s.Search(s.getGrid(), "ID", true);
 		System.out.println(output4.toString());
-		System.out.println("---------------------------------------------------");
-		System.setOut(console);
-		System.out.println("Searching using GR1");
-		fileStream = new PrintStream("GR1.txt");
-		System.setOut(fileStream);
-		ArrayList<String> output5 = s.Search(s.getGrid(), "GR1", true);
-		System.out.println(output5.toString());
-		System.out.println("---------------------------------------------------");
-		System.setOut(console);
-		System.out.println("Searching using GR2");
-		fileStream = new PrintStream("GR2.txt");
-		System.setOut(fileStream);
-		ArrayList<String> output6 = s.Search(s.getGrid(), "GR2", true);
-		System.out.println(output6.toString());
-		System.out.println("---------------------------------------------------");
-		System.setOut(console);
-		System.out.println("Searching using AS1");
-		fileStream = new PrintStream("AS1.txt");
-		System.setOut(fileStream);
-		ArrayList<String> output7 = s.Search(s.getGrid(), "AS1", true);
-		System.out.println(output7.toString());
-		System.out.println("---------------------------------------------------");
-		System.setOut(console);
-		System.out.println("Searching using AS2");
-		fileStream = new PrintStream("AS2.txt");
-		System.setOut(fileStream);
-		ArrayList<String> output8 = s.Search(s.getGrid(), "AS2", true);
-		System.out.println(output8.toString());
-		System.out.println("---------------------------------------------------");
-		System.setOut(console);
-		System.out.println("Done :)");
+//		System.setOut(console);
+//		System.out.println("Searching using GR1");
+//		fileStream = new PrintStream("GR1.txt");
+//		System.setOut(fileStream);
+//		ArrayList<String> output5 = s.Search(s.getGrid(), "GR1", true);
+//		System.out.println(output5.toString());
+//		System.setOut(console);
+//		System.out.println("Searching using GR2");
+//		fileStream = new PrintStream("GR2.txt");
+//		System.setOut(fileStream);
+//		ArrayList<String> output6 = s.Search(s.getGrid(), "GR2", true);
+//		System.out.println(output6.toString());
+//		System.setOut(console);
+//		System.out.println("Searching using AS1");
+//		fileStream = new PrintStream("AS1.txt");
+//		System.setOut(fileStream);
+//		ArrayList<String> output7 = s.Search(s.getGrid(), "AS1", true);
+//		System.out.println(output7.toString());
+//		System.setOut(console);
+//		System.out.println("Searching using AS2");
+//		fileStream = new PrintStream("AS2.txt");
+//		System.setOut(fileStream);
+//		ArrayList<String> output8 = s.Search(s.getGrid(), "AS2", true);
+//		System.out.println(output8.toString());
+//		System.setOut(console);
+//		System.out.println("Done :)");
 	}
 
 	public Cell[][] getGrid() {
