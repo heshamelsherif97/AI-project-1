@@ -83,6 +83,40 @@ public class SaveWesteros extends SearchProblem {
 		return n;
 	}
 	
+	
+	public Node heuristicfun2(Node n) {
+		ArrayList<String> state = n.getState().getState();
+		int positionI = Integer.parseInt(state.get(0));
+		int positionJ = Integer.parseInt(state.get(1));
+		int numWhiteWalkers = Integer.parseInt(state.get(2));
+		String WWpos = state.get(4);
+		int h = 0;
+		if(numWhiteWalkers == 0) {
+				h = 0;
+			}else {
+				h = 1 + numWhiteWalkers - getNearestWW(positionI, positionJ, WWpos);
+			}
+		n.setHeuristicfun2(h); 
+		return n;
+	}
+	
+	public int getNearestWW(int i, int j, String wwPositions) {
+		String whiteWalkersPositions = wwPositions;
+		int minDistance = Integer.MAX_VALUE;
+		String [] parsedWhite = (whiteWalkersPositions.split("/"));
+		for (int k = 0; k < parsedWhite.length; k++) {
+			if(!parsedWhite[k].equals("")) {
+				String [] splitComma = parsedWhite[k].split(",");
+				int posX = Integer.parseInt(splitComma[0]);
+				int posY = Integer.parseInt(splitComma[1]);
+				if(minDistance >= (int)Math.sqrt(Math.pow(i - posX, 2) + Math.pow(j - posY, 2))) {
+					minDistance = (int)Math.sqrt(Math.pow(i - posX, 2) + Math.pow(j - posY, 2));
+				}
+			}
+		}
+		return minDistance;
+	}
+	
 	public int isWhiteWalker(State s, int i, int j) {
 		if(parseStateWhite(s, i, j)) {
 			return 1;
@@ -122,17 +156,12 @@ public class SaveWesteros extends SearchProblem {
 		
 		return num;
 	}
-
-	public Node heuristicfun2(Node n) {
-		
-		return n;
-	}
 	
 	public void genGrid() {
 		
 		Random r = new Random();
-		int randomX = r.nextInt(1) + 6;//7,4
-		int randomY = r.nextInt(1) + 6;//7,4
+		int randomX = r.nextInt(1) + 9;//7,4
+		int randomY = r.nextInt(1) + 9;//7,4
 		maxDragonGlass = r.nextInt(10) + 1;
 		this.positionI = randomX - 1;
 		this.positionJ = randomY - 1;
@@ -478,13 +507,13 @@ public class SaveWesteros extends SearchProblem {
 
 	public static void main(String[] args) throws FileNotFoundException {
 		SaveWesteros s= new SaveWesteros();
-		//s.genGrid();
-		try {
-			s.genGrid2("p1.txt");
-		} catch (IOException e) {
-			System.out.println("File Not Found");
-			System.exit(0);
-		}
+		s.genGrid();
+//		try {
+//			s.genGrid2("p2.txt");
+//		} catch (IOException e) {
+//			System.out.println("File Not Found");
+//			System.exit(0);
+//		}
 		s.deleteFiles();
 		PrintStream fileStream;
 //		fileStream = new PrintStream("BF.txt");
@@ -509,7 +538,7 @@ public class SaveWesteros extends SearchProblem {
 //		System.out.println("Searching using ID");
 //		fileStream = new PrintStream("ID.txt");
 //		System.setOut(fileStream);
-		ArrayList<String> output4 = s.Search(s.getGrid(), "ID", true);
+		ArrayList<String> output4 = s.Search(s.getGrid(), "AS2", true);
 		System.out.println(output4.toString());
 //		System.setOut(console);
 //		System.out.println("Searching using GR1");

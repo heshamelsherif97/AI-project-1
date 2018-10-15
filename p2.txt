@@ -1,0 +1,7 @@
+4
+whi, whi, obs, obs, emp, emp,
+emp, obs, obs, obs, obs, emp,
+emp, whi, whi, dra, whi, emp,
+obs, emp, emp, emp, emp, emp,
+obs, whi, obs, emp, whi, emp,
+whi, emp, obs, emp, obs, Jon,

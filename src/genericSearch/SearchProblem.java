@@ -106,12 +106,13 @@ public abstract class SearchProblem {
 	public Node ID(SearchProblem problem) {
 		int depth = 0;
 		while(depth <= Integer.MAX_VALUE) {
+			problem.setExpandedNodes(0);
 			problem.getStateSpace().removeAll(problem.getStateSpace());
 			problem.getStateSpace().add(problem.getInitialState());		
 			ArrayList<Node> nodes = new ArrayList<>();
 			Node root = new Node(0, 0, null, null, null, problem.getInitialState());
 			nodes.add(root);
-			Node result = depthLimitedSearch(problem, depth, nodes, 0);
+			Node result = depthLimitedSearch(problem, depth, root);
 			if (result != null) {
 				return result;
 			}
@@ -120,9 +121,7 @@ public abstract class SearchProblem {
 		return null;
 	}
 	
-	public Node depthLimitedSearch(SearchProblem problem, int depth, ArrayList<Node> nodes, int index) {
-		Node current = nodes.get(index);
-		System.out.println(nodes.toString());
+	public Node depthLimitedSearch(SearchProblem problem, int depth, Node current) {
 		if(depth == 0) {
 			if(goalTest(current.getState())) {
 				return current;
@@ -133,24 +132,11 @@ public abstract class SearchProblem {
 			current = expand(current, problem);
 			for (int i = 0; i < current.getChildren().size(); i++) {
 				Node child = current.getChildren().get(i);
-				int j=0;
-				for (j = 0; j < nodes.size(); j++) {
-					if(pathCost(current.getChildren().get(i)) < pathCost(nodes.get(j))) break;
-				}
-				nodes.add(j, current.getChildren().get(i));
-				Node result = depthLimitedSearch(problem, depth-1, nodes, nodes.indexOf(child));
+				Node result = depthLimitedSearch(problem, depth-1, child);
 				if(result != null) {
 					return result;
 				}
 			}
-//			for (int i = 0; i < current.getChildren().size(); i++) {
-//				Node child = current.getChildren().get(i);
-//				nodes.add(child);
-//				Node result = depthLimitedSearch(problem, depth-1, nodes, nodes.indexOf(child));
-//				if(result != null) {
-//					return result;
-//				}
-//			}
 		}
 		return null;
 	}
