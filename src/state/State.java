@@ -22,11 +22,7 @@ public class State {
 		for(int i = 0 ; i<state1.size() ; i++) {
 			 State currentState = state1.get(i);
 			 boolean checkStateElement = true;
-			 for(int k=0 ; k<5 ; k++){
-//				 System.out.print("The first state compared : "  + currentState.getState().toString() + ",");
-//				 System.out.print("The current state being enqueued : " + this.getState().toString());
-//				 System.out.println();
-				 
+			 for(int k=0 ; k<5 ; k++){				 
 				 if(!(currentState.getState().get(k)).equals(this.getState().get(k))){
 					 checkStateElement= false;
 				 }

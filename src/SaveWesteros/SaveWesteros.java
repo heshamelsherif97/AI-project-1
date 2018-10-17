@@ -94,7 +94,7 @@ public class SaveWesteros extends SearchProblem {
 		if(numWhiteWalkers == 0) {
 				h = 0;
 			}else {
-				h = 1 + numWhiteWalkers - getNearestWW(positionI, positionJ, WWpos);
+				h =  getNearestWW(positionI, positionJ, WWpos);
 			}
 		n.setHeuristicfun2(h); 
 		return n;
@@ -160,8 +160,8 @@ public class SaveWesteros extends SearchProblem {
 	public void genGrid() {
 		
 		Random r = new Random();
-		int randomX = r.nextInt(1) + 9;//7,4
-		int randomY = r.nextInt(1) + 9;//7,4
+		int randomX = r.nextInt(1) + 4;//7,4
+		int randomY = r.nextInt(1) + 4;//7,4
 		maxDragonGlass = r.nextInt(10) + 1;
 		this.positionI = randomX - 1;
 		this.positionJ = randomY - 1;
@@ -345,7 +345,7 @@ public class SaveWesteros extends SearchProblem {
 			System.out.println("Heuristic1 Cost: "+ poped.getHeuristicfun1());
 			System.out.println("Heuristic2 Cost: "+ poped.getHeuristicfun2());
 			System.out.println("State: "+ poped.getState().getState().toString());
-
+			System.out.println("Depth: "+ poped.getDepth());
 			printGrid(grid2);
 		}
 		while(!oldS.isEmpty()) {
@@ -507,13 +507,13 @@ public class SaveWesteros extends SearchProblem {
 
 	public static void main(String[] args) throws FileNotFoundException {
 		SaveWesteros s= new SaveWesteros();
-		s.genGrid();
-//		try {
-//			s.genGrid2("p2.txt");
-//		} catch (IOException e) {
-//			System.out.println("File Not Found");
-//			System.exit(0);
-//		}
+		//s.genGrid();
+		try {
+			s.genGrid2("p1.txt");
+		} catch (IOException e) {
+			System.out.println("File Not Found");
+			System.exit(0);
+		}
 		s.deleteFiles();
 		PrintStream fileStream;
 //		fileStream = new PrintStream("BF.txt");
@@ -538,7 +538,7 @@ public class SaveWesteros extends SearchProblem {
 //		System.out.println("Searching using ID");
 //		fileStream = new PrintStream("ID.txt");
 //		System.setOut(fileStream);
-		ArrayList<String> output4 = s.Search(s.getGrid(), "AS2", true);
+		ArrayList<String> output4 = s.Search(s.getGrid(), "DF", true);
 		System.out.println(output4.toString());
 //		System.setOut(console);
 //		System.out.println("Searching using GR1");
