@@ -1,5 +1,7 @@
 package state;
 
+
+/*This object is just to accompany a state with an operator which was used to generate the state*/
 public class StateWithOperator {
 	private State state;
 	private String operator;

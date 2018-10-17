@@ -1,5 +1,9 @@
 package Cell;
 
+/*Class Cell describes the cell object which has a type and a number of dragon glass that 
+ *can provide to Jon Snow. 
+ */
+
 public class Cell {
 	private String type;
 	private int dragonGlass = 0;

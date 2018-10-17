@@ -1,5 +1,9 @@
 package state;
 
+
+/*State class is a description of how a state tuple is described
+ * It is an array list of strings which include the state
+ */
 import java.util.ArrayList;
 
 public class State {
@@ -18,6 +22,12 @@ public class State {
 		this.state = state;
 	}
 	
+	
+	/*
+	 * This function is used to check if a state is already existing in a list of states
+	 * It is called to check if a state is already existing in a state space of a problem
+	 * to avoid repeated states
+	 * */
 	public  boolean checkSameState(ArrayList<State> state1){
 		for(int i = 0 ; i<state1.size() ; i++) {
 			 State currentState = state1.get(i);

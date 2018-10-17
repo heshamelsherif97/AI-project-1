@@ -3,7 +3,12 @@ package tree;
 import java.util.ArrayList;
 
 import state.State;
-
+/*The search tree node class describes how the nodes are implemented
+ * All nodes have a depth, a cost, a self referential node which refernces to the parent of this node,
+ * An arraylist which includes the children of this node after it is expanded, an operator which was applied 
+ * to generate this node, the state accompanied to this node and 2 attributes holding the 2 heuristic
+ * values for the node 
+ */
 public class Node {
 	private int depth;
 	private int cost;
