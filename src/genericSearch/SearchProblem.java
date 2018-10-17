@@ -114,15 +114,6 @@ public abstract class SearchProblem {
 		return nodes;
 	}
 	
-	public void printStates(ArrayList<State> states) {
-		System.out.println("--------------------------");
-		for (Iterator iterator = states.iterator(); iterator.hasNext();) {
-			State state = (State) iterator.next();
-			System.out.print(state.getState().toString()+", ");
-			System.out.println("");
-		}
-	}
-	
 	public Node ID(SearchProblem problem) {
 		int depth = 0;
 		ArrayList<Node> depths= new ArrayList<>();
