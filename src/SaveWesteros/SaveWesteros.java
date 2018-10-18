@@ -621,7 +621,7 @@ public class SaveWesteros extends SearchProblem {
 		
 		//Reads a txt file and generates the grid from it
 		try {
-			s.genGrid2("p1.txt");
+			s.genGrid2("p2.txt");
 		} catch (IOException e) {
 			System.out.println("File Not Found");
 			System.exit(0);
