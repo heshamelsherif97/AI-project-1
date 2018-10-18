@@ -17,6 +17,11 @@ public abstract class SearchProblem {
 	private ArrayList<State> stateSpace;
 	//To keep track of how much nodes were chosen for expansion
 	private int expandedNodes = 0;
+	//Expanded nodes from first iteration in ID
+	private int cummalativeNodes = 0;
+	
+	//Arraylist To keep track of expanded nodes at lower depth
+	private ArrayList<Node> depths;
 	
 	//Abstract Methods
 	
@@ -97,6 +102,7 @@ public abstract class SearchProblem {
 				}
 		//Increment number of expanded nodes
 		problem.setExpandedNodes(problem.getExpandedNodes()+1);
+		problem.setCummalativeNodes(problem.getCummalativeNodes()+1);
 		n.setChildren(children);
 		return n;
 	}
@@ -152,7 +158,7 @@ public abstract class SearchProblem {
 		//Begin with depth 0
 		int depth = 0;
 		//Arraylist To keep track of expanded nodes at lower depth
-		ArrayList<Node> depths= new ArrayList<>();
+		problem.setDepths(new ArrayList<>());
 		//Root
 		Node root = new Node(0, 0, null, null, "", problem.getInitialState());
 		//Loop till the maximum value Integer data type can hold
@@ -160,7 +166,7 @@ public abstract class SearchProblem {
 			//Reset Expanded nodes at every depth
 			problem.setExpandedNodes(0);
 			//Helper function
-			Node result = depthLimitedSearch(problem, depth, root, depths);
+			Node result = depthLimitedSearch(problem, depth, root, problem.getDepths());
 			//If there is a result return it
 			if (result != null) {
 				return result;
@@ -313,6 +319,18 @@ public abstract class SearchProblem {
 	}
 	public void setExpandedNodes(int expandedNodes) {
 		this.expandedNodes = expandedNodes;
+	}
+	public int getCummalativeNodes() {
+		return cummalativeNodes;
+	}
+	public void setCummalativeNodes(int cummalativeNodes) {
+		this.cummalativeNodes = cummalativeNodes;
+	}
+	public ArrayList<Node> getDepths() {
+		return depths;
+	}
+	public void setDepths(ArrayList<Node> depths) {
+		this.depths = depths;
 	}
 	
 }

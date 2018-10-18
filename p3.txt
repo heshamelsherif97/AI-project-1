@@ -1,4 +1,4 @@
-4
-emp, whi, emp,
-emp, dra, emp,
-emp, whi, Jon,
+1
+whi, whi, whi,
+whi, whi, dra,
+whi, whi, Jon,

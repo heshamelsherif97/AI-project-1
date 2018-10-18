@@ -75,6 +75,7 @@ public class SaveWesteros extends SearchProblem {
 		return 1;
 	}
 	
+
 	//Function to compute the first heuristic value of a node
 	public Node heuristicfun1(Node n) {
 		//Parse the state of the node
@@ -86,6 +87,7 @@ public class SaveWesteros extends SearchProblem {
 		int dragonI = getPositionIDragon();
 		int dragonJ = getPositionJDragon();
 		int maxDragon = getMaxDragonGlass();
+		int numAdjacent = numAdjacentWW(n.getState(), positionI, positionJ);
 		int h = 0;
 		//No white walkers return 0 (Goal)
 		if(numWhiteWalkers == 0) {
@@ -99,23 +101,24 @@ public class SaveWesteros extends SearchProblem {
 		//If Jon has maximum number of dragon stone h(n) is equal to number of white walker - number of adjacent 
 		//white walkers on the cell Jon is on
 		else if(currentDragonGlass == maxDragon) {
-			h = numWhiteWalkers - numAdjacentWW(n.getState(), positionI, positionJ);
+			h = numWhiteWalkers - numAdjacentWW(n.getState(), positionI, positionJ)- ((numWhiteWalkers-numAdjacent)/3);
 		}
 		//If the dragonglass is less than the number of white walkers/3 then 
 		//h(n) is the min of the distance of jon snow to the dragon stone and number of adjacent 
 		//white walkers on the cell Jon is on
 		else if(currentDragonGlass < numWhiteWalkers/3) {
 			h = (int)Math.sqrt(Math.pow(positionI - dragonI, 2) + Math.pow(positionJ - dragonJ, 2));
-			h = Math.min(h, numWhiteWalkers - numAdjacentWW(n.getState(), positionI, positionJ));
+			h = Math.min(h, numWhiteWalkers - numAdjacentWW(n.getState(), positionI, positionJ) - ((numWhiteWalkers-numAdjacent)/3));
 		}
 		//If dragon glass Jon is holding is equal or greater than number of white walkers/3 then 
 		//h(n) is the number of adjacent white walkers on the cell Jon is on
 		else if(currentDragonGlass >= numWhiteWalkers/3) {
-			h = numWhiteWalkers - numAdjacentWW(n.getState(), positionI, positionJ);
+			h = numWhiteWalkers - numAdjacentWW(n.getState(), positionI, positionJ ) - ((numWhiteWalkers-numAdjacent)/3);
 		}
 		n.setHeuristicfun1(h); 
 		return n;
-	}
+		}
+
 	
 	
 	public Node heuristicfun2(Node n) {
@@ -342,12 +345,18 @@ public class SaveWesteros extends SearchProblem {
 			output.add("Actions: "+actionSequences);
 			output.add("Solution Cost: "+pathCost(result));
 			output.add("Expanded nodes: "+getExpandedNodes());
+			if(strategy.equals("ID")) {
+				output.add("Expanded nodes cummaltive: "+getCummalativeNodes());
+			}
 		}
 		//If no Solution
 		else {
 			output.add("No Solution");
 			output.add("No Solution");
 			output.add("Expanded nodes: "+getExpandedNodes());
+			if(strategy.equals("ID")) {
+				output.add("Expanded nodes cummaltive: "+getCummalativeNodes());
+			}
 		}
 		return output;
 	}
@@ -614,11 +623,12 @@ public class SaveWesteros extends SearchProblem {
 		System.setOut(console);
 	}
 
+	//Main Method
 	public static void main(String[] args) throws FileNotFoundException {
 		SaveWesteros s= new SaveWesteros();
 		//Generates a random Grid
 		//s.genGrid();
-		
+	
 		//Reads a txt file and generates the grid from it
 		try {
 			s.genGrid2("p2.txt");
@@ -641,6 +651,9 @@ public class SaveWesteros extends SearchProblem {
 		System.out.println("Done :)");
 	}
 
+	
+	
+	//Getters and Setter
 	public Cell[][] getGrid() {
 		return grid;
 	}
